@@ -1,4 +1,5 @@
 import static spark.Spark.*;
+
 import com.google.gson.Gson;
 
 import java.util.*;
@@ -64,9 +65,17 @@ public class QuizApp {
             this.name = name;
         }
 
-        public int getId() { return id; }
-        public String getName() { return name; }
-        public List<Question> getQuestions() { return questions; }
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<Question> getQuestions() {
+            return questions;
+        }
     }
 
     static class Question {
@@ -74,7 +83,8 @@ public class QuizApp {
         private List<String> options;
         private int correctOptionIndex;
 
-        public Question() {}
+        public Question() {
+        }
 
         public Question(String questionText, List<String> options, int correctOptionIndex) {
             this.questionText = questionText;
@@ -82,8 +92,16 @@ public class QuizApp {
             this.correctOptionIndex = correctOptionIndex;
         }
 
-        public String getQuestionText() { return questionText; }
-        public List<String> getOptions() { return options; }
-        public int getCorrectOptionIndex() { return correctOptionIndex; }
+        public String getQuestionText() {
+            return questionText;
+        }
+
+        public List<String> getOptions() {
+            return options;
+        }
+
+        public int getCorrectOptionIndex() {
+            return correctOptionIndex;
+        }
     }
 }
