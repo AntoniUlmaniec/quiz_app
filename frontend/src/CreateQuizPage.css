@@ -1,0 +1,236 @@
+.create-quiz-container {
+  max-width: 775px;
+  margin: auto;
+  text-align: left;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.quiz-type-select {
+  margin-bottom: 20px;
+}
+
+.quiz-type-select label {
+  margin-right: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.question-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: #fafafa;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-header h3 {
+  margin: 0;
+}
+
+.btn-remove-question {
+  background-color: #ff6666;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-remove-question:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-remove-question:not(:disabled):hover {
+  background-color: #cc4444;
+}
+
+.question-input {
+  width: 100%;
+  padding: 6px;
+  font-size: 1rem;
+  margin: 12px 0 20px 0;
+  box-sizing: border-box;
+}
+
+.answers-list {
+  margin-left: 10px;
+}
+
+.answer-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.answer-text-input {
+  flex: 1;
+  padding: 6px;
+  font-size: 1rem;
+}
+
+.answer-points-input {
+  width: 80px;
+  margin-left: 10px;
+  padding: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.btn-remove-answer {
+  margin-left: 10px;
+  background-color: #ff6666;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-remove-answer:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-remove-answer:not(:disabled):hover {
+  background-color: #cc4444;
+}
+
+.btn-add-answer {
+  background-color: #2196f3;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  padding: 8px 15px;
+  font-size: 1rem;
+  margin-top: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add-answer:hover {
+  background-color: #1976d2;
+}
+
+.btn-add-question {
+  background-color: #4caf50;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add-question:hover {
+  background-color: #45a045;
+}
+
+.errors-list {
+  color: red;
+  margin-top: 20px;
+}
+
+.actions-row {
+  margin-top: 30px;
+}
+
+.btn-save-quiz {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-right: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-save-quiz:hover {
+  background-color: #45a045;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #d32f2f;
+}
+
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #ff4d4f; /* ładny czerwony */
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  font-weight: 600;
+  z-index: 1000;
+  animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+.author-nickname-input {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.quiz-type-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.quiz-type-options {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+.author-nickname-input {
+  flex-grow: 1;
+  max-width: 300px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
