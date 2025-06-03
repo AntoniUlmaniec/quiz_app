@@ -3,6 +3,7 @@ package com.example.spring_boot;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -10,14 +11,12 @@ import java.util.List;
 public class HelloController {
 
     @GetMapping("/")
-    public String index() {
-        return "Swagger UI: dostępny jest na stronie http://localhost:8080/swagger-ui/index.html \n http://localhost:8080/v3/api-docs";
+    public RedirectView redirect() {
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl("http://localhost:8080/swagger-ui/index.html");
+        return redirectView;
     }
 
-    @GetMapping("/test")
-    public String index2() {
-        return "test!";
-    }
 
     @GetMapping("/users")
     public List<String> getUsers() {
