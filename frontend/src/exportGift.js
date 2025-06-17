@@ -17,7 +17,7 @@ import { saveAs } from 'file-saver'; // importujemy bibliotekę do zapisu plikó
 //     saveAs(blob, `${quizData.title}.gift`);
 // };
 
-/ Funkcja, która używa backendu zamiast lokalnego eksportu
+// Funkcja, która używa backendu zamiast lokalnego eksportu
 export const exportQuizToGIFT = (quizData) => {
     // ... (Twój kod generujący plik lokalnie) ...
 };
