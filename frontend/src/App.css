@@ -1,60 +1,93 @@
-.App {
-  text-align: center;
-  padding: 40px 20px;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f4f8;
-  min-height: 100vh;
+.App { font-family: Arial, sans-serif; padding: 16px; }
+header { text-align: center; margin-bottom: 24px; }
+.subtitle { color: #555; }
+.create-btn { background: #4caf50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; }
+.top-bar { position: fixed; top: 16px; right: 16px; display: flex; gap: 8px; }
+.top-bar button { padding: 8px 12px; border: none; cursor: pointer; }
+.quiz-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 80px; }
+.quiz-button { width: 100%; padding: 16px; font-size: 18px; color: #333; border: none; border-radius: 8px; text-align: left; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform .1s ease; }
+.quiz-button:hover { transform: translateY(-2px); }
+
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-header {
-  margin-bottom: 40px;
+.modal {
+  background: white; /* Upewniamy się, że tło modala jest białe */
+  padding: 20px;
+  border-radius: 8px;
+  width: 75vw;
+  min-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-h1 {
-  font-size: 3rem;
-  margin: 0;
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  background: white; /* białe tło także dla sekcji filtrów */
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.filter-group label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.filter-group input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.export-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  background: white; /* białe tło listy */
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.export-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-buttons button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-buttons button:first-child {
+  background: #4caf50;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background: #ccc;
   color: #333;
 }
 
-.subtitle {
-  color: #666;
-  margin-top: 8px;
-  font-size: 1.2rem;
-}
-
-.create-btn {
-  margin-top: 20px;
-  padding: 12px 24px;
-  font-size: 1rem;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.create-btn:hover {
-  background-color: #45a045;
-}
-
-.quiz-list {
-  text-align: left;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.quiz-list h2 {
-  font-size: 1.6rem;
-  margin-bottom: 10px;
-  color: #222;
-}
-
-.quiz-item {
-  background-color: white;
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  font-size: 1.1rem;
-}
