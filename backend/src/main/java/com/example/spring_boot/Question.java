@@ -1,13 +1,26 @@
 package com.example.spring_boot;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
+import java.util.List;
 
-
+@Entity
 public class Question {
-    private String question;
-    private ArrayList<Answer> answers = new ArrayList<Answer>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Question(String question, ArrayList<Answer> answers) {
+    private String question;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "question_id")
+    private List<Answer> answers = new ArrayList<>();
+
+    public Question() {
+        // no-arg constructor required by JPA
+    }
+
+    public Question(String question, List<Answer> answers) {
         this.question = question;
         this.answers = answers;
     }
@@ -30,11 +43,11 @@ public class Question {
         this.question = question;
     }
 
-    public ArrayList<Answer> getAnswers() {
+    public List<Answer> getAnswers() {
         return answers;
     }
 
-    public void setAnswers(ArrayList<Answer> answers) {
+    public void setAnswers(List<Answer> answers) {
         this.answers = answers;
     }
 }

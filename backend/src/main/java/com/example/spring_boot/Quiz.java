@@ -1,17 +1,27 @@
 package com.example.spring_boot;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
-
+@Entity
 public class Quiz {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String author;
     private String title;
     private LocalDate creationDate;
-    private ArrayList<Question> questions = new ArrayList<Question>();
 
-    public Quiz(Long id, String author, String title, LocalDate creationDate, ArrayList<Question> questions) {
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "quiz_id")
+    private List<Question> questions = new ArrayList<>();
+
+
+    public Quiz(Long id, String author, String title, LocalDate creationDate, List<Question> questions) {
         this.id = id;
         this.author = author;
         this.title = title;
@@ -19,19 +29,11 @@ public class Quiz {
         this.questions = questions;
     }
 
+
     public Quiz() {
         this.title = "";
         this.author = "";
         this.creationDate = LocalDate.now();
-        this.questions = new ArrayList<Question>();
-        ArrayList<Answer> odpwoeidzi = new ArrayList<>();
-        odpwoeidzi.add(new Answer(1, true, "Odpowiedz"));
-        questions.add(new Question("PYTANIE", odpwoeidzi));
-        questions.add(new Question("PYTANIE", odpwoeidzi));
-        questions.add(new Question("PYTANIE", odpwoeidzi));
-        questions.add(new Question("PYTANIE", odpwoeidzi));
-        questions.add(new Question("PYTANIE", odpwoeidzi));
-
     }
 
     public int getMaxPointsPerQuiz() {
@@ -58,11 +60,11 @@ public class Quiz {
         this.title = title;
     }
 
-    public ArrayList<Question> getQuestions() {
+    public List<Question> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(ArrayList<Question> questions) {
+    public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
 
