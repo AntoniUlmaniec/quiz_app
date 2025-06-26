@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 
 public class Quiz {
-    private int id;
+    private Long id;
     private String author;
     private String title;
     private LocalDate creationDate;
     private ArrayList<Question> questions = new ArrayList<Question>();
 
-    public Quiz(int id, String author, String title, LocalDate creationDate, ArrayList<Question> questions) {
+    public Quiz(Long id, String author, String title, LocalDate creationDate, ArrayList<Question> questions) {
         this.id = id;
         this.author = author;
         this.title = title;
@@ -42,11 +42,11 @@ public class Quiz {
         return points;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
