@@ -1,43 +1,49 @@
 package com.example.spring_boot;
-import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 
 
 public class Quiz {
     private int id;
+    private String author;
     private String title;
+    private LocalDate creationDate;
     private ArrayList<Question> questions = new ArrayList<Question>();
 
-    private String author;
-    private LocalDate creationDate;
+    public Quiz(int id, String author, String title, LocalDate creationDate, ArrayList<Question> questions) {
+        this.id = id;
+        this.author = author;
+        this.title = title;
+        this.creationDate = creationDate;
+        this.questions = questions;
+    }
 
-    public Quiz(){
+    public Quiz() {
         this.title = "";
         this.author = "";
         this.creationDate = LocalDate.now();
         this.questions = new ArrayList<Question>();
         ArrayList<Answer> odpwoeidzi = new ArrayList<>();
-        odpwoeidzi.add(new Answer("Odpowiedzi", true, 1) );
+        odpwoeidzi.add(new Answer(1, true, "Odpowiedz"));
         questions.add(new Question("PYTANIE", odpwoeidzi));
         questions.add(new Question("PYTANIE", odpwoeidzi));
         questions.add(new Question("PYTANIE", odpwoeidzi));
         questions.add(new Question("PYTANIE", odpwoeidzi));
         questions.add(new Question("PYTANIE", odpwoeidzi));
 
+    }
+
+    public int getMaxPointsPerQuiz() {
+        int points = 0;
+        for (Question question : questions) {
+            points += question.getMaxPointsPerQuestion();
+        }
+        return points;
     }
 
     public int getId() {
         return id;
-    }
-
-    public int getSumaMaxPunktowWQuiziue(){
-        int wynik = 0;
-        for (Question question : questions) {
-            wynik += question.getMaxSumaPunktowZaPytanie();
-        }
-        return wynik;
     }
 
     public void setId(int id) {

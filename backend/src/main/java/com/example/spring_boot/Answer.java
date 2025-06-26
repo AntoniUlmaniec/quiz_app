@@ -1,33 +1,38 @@
 package com.example.spring_boot;
 
 public class Answer {
-    int liczbaPunktowZaOdpowiedz;
-    boolean czyPrawdziwe;
-    String answer;
+    int pointsPerAnswer;
+    boolean isCorrect;
+    String answerText;
 
-    public Answer(String answer, boolean czyPrawdziwe, int liczbaPunktowZaOdpowiedz) {
-        this.answer = answer;
-        this.czyPrawdziwe = czyPrawdziwe;
-        this.liczbaPunktowZaOdpowiedz = liczbaPunktowZaOdpowiedz;
+    public Answer(int pointsPerAnswer, boolean isCorrect, String answerText) {
+        this.pointsPerAnswer = pointsPerAnswer;
+        this.isCorrect = isCorrect;
+        this.answerText = answerText;
     }
 
+    public int getPointsPerAnswer() {
+        return pointsPerAnswer;
+    }
 
-    public int getLiczbaPunktowZaOdpowiedz() {
-        return liczbaPunktowZaOdpowiedz;
+    public void setPointsPerAnswer(int pointsPerAnswer) {
+        this.pointsPerAnswer = pointsPerAnswer;
     }
-    public void setLiczbaPunktowZaOdpowiedz(int liczbaPunktowZaOdpowiedz) {
-        this.liczbaPunktowZaOdpowiedz = liczbaPunktowZaOdpowiedz;
+
+    public boolean isCorrect() {
+        return isCorrect;
     }
-    public void setAnswer(String answer) {
-        this.answer = answer;
+
+    public void setCorrect(boolean correct) {
+        isCorrect = correct;
     }
-    public void setCzyPrawdziwe(boolean czyPrawdziwe) {
-        this.czyPrawdziwe = czyPrawdziwe;
+
+    public String getAnswerText() {
+        return answerText;
     }
-    public String getAnswer() {
-        return answer;
+
+    public void setAnswerText(String answerText) {
+        this.answerText = answerText;
     }
-    public boolean isCzyPrawdziwe() {
-        return czyPrawdziwe;
-    }
+
 }

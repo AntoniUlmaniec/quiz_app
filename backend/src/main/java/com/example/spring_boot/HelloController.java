@@ -19,7 +19,7 @@ public class HelloController {
     }
 
     @GetMapping("quizes")
-    public ArrayList<Quiz> getAllQuizes(){
+    public ArrayList<Quiz> getAllQuizes() {
         ArrayList<Quiz> quizy = new ArrayList<Quiz>();
         quizy.add(new Quiz());
         quizy.add(new Quiz());
@@ -31,8 +31,6 @@ public class HelloController {
         Quiz quiz = new Quiz();
         return quiz; // Spring automatycznie zamieni to na JSON
     }
-
-
 
     @GetMapping("/users")
     public List<String> getUsers() {

@@ -1,10 +1,6 @@
 package com.example.spring_boot;
-import jakarta.persistence.Entity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 public class Question {
@@ -16,14 +12,14 @@ public class Question {
         this.answers = answers;
     }
 
-    public int getMaxSumaPunktowZaPytanie(){
-        int wynik = 0;
+    public int getMaxPointsPerQuestion() {
+        int points = 0;
         for (Answer answer : answers) {
-            if(answer.czyPrawdziwe){
-                wynik += answer.liczbaPunktowZaOdpowiedz;
+            if (answer.isCorrect) {
+                points += answer.pointsPerAnswer;
             }
         }
-        return wynik;
+        return points;
     }
 
     public String getQuestion() {
