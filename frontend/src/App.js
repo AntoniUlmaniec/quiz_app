@@ -2,8 +2,9 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import CreateQuizPage from './CreateQuizPage';
 import { exportQuizViaBackend } from './exportGift';
-import './exportGift';
-import { importGiftFile } from './importGift';
+// Zmieniono importGift na użycie eksportowanej funkcji
+import { importGiftFileToBackend } from './importGift';
+import ShowQuizPage from './ShowQuizPage';
 
 function randomColor() {
   const r = Math.floor(Math.random() * 256);
@@ -13,24 +14,23 @@ function randomColor() {
 }
 
 function App() {
+  const [showingQuiz, setShowingQuiz] = useState(null);
   const [creatingQuiz, setCreatingQuiz] = useState(false);
   const [exportingQuiz, setExportingQuiz] = useState(false);
   const [importedQuiz, setImportedQuiz] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
-  // const [quizzes, setQuizzes] = useState([
-  //   { id: 1, title: 'Quiz: HTML & CSS', author: 'John Doe', category: 'Web Dev', selected: false,color: randomColor() },
-  //   { id: 2, title: 'Quiz: JavaScript', author: 'Jane Smith', category: 'Programming', selected: false ,color: randomColor()},
-  //   { id: 3, title: 'Quiz: Podstawy Javy', author: 'Jan Kowalski', category: 'Programming', selected: false ,color: randomColor()},
-  // ]);
 
   useEffect(() => {
+    fetchQuizzes();
+  }, []);
+
+  const fetchQuizzes = () => {
     fetch('http://localhost:8080/quizes')
         .then(res => res.json())
         .then(data => {
-          // Map backend data to frontend structure
           const mapped = data.map(q => ({
             ...q,
-            category: 'Brak kategorii', // or map if you have category
+            category: 'Brak kategorii',
             selected: false,
             color: randomColor(),
           }));
@@ -38,8 +38,9 @@ function App() {
         })
         .catch(err => {
           console.error('Error fetching quizzes:', err);
+          alert('Błąd podczas pobierania quizów. Sprawdź, czy backend działa.');
         });
-  }, []);
+  };
 
   const [authorFilter, setAuthorFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -55,51 +56,40 @@ function App() {
   const handleExport = () => {
     quizzes
         .filter(q => q.selected)
-        .forEach(q => exportQuizViaBackend(q));  // wywołanie funkcji
+        .forEach(q => exportQuizViaBackend(q));
     setExportingQuiz(false);
   };
 
-  const handleImportClick = () => {
-    document.getElementById('file-import').click();
+  const handleImportGiftClick = () => {
+    document.getElementById('file-import-gift').click();
   };
 
-  const handleImportChange = e => {
+  const handleImportGiftChange = e => {
     const file = e.target.files[0];
     if (file) {
-
-
-
-      // Wyślij plik do backendu
-      const formData = new FormData();
-      formData.append("file", file);
-
-      fetch("http://localhost:8080/import", {
-        method: "POST",
-        body: formData,
-      })
-          .then(res => res.text().then(text => {
-            if (res.ok) {
-              alert("✅ Plik został wysłany do backendu: " + text);
-              alert("✅ Plik został wysłany do backendu");
-              // Dodaj kafelek od razu
-              const newQuiz = {
-                id: Math.floor(Math.random() * 10000),
-                title: file.name.replace(".gift", ""),
-                author: "Z pliku .gift",
-                category: "Import",
-                selected: false,
-                color: randomColor()
-              };
-              setQuizzes(qs => [...qs, newQuiz]);
-            } else {
-              alert("⚠️ Wysłano plik, ale backend zwrócił błąd");
-            }
-          })
-          .catch(err => {
-            console.error("Błąd przesyłania pliku:", err);
-            alert("❌ Nie udało się wysłać pliku do backendu");
-          }));
+      importGiftFileToBackend(
+          file,
+          (message) => { // onSuccess callback
+            alert(`✅ Plik GIFT został pomyślnie przetworzony przez backend: ${message}`);
+            fetchQuizzes(); // Odśwież listę quizów
+          },
+          (error) => { // onError callback
+            console.error("❌ Błąd przesyłania lub przetwarzania pliku GIFT:", error);
+            alert(`❌ Nie udało się zaimportować pliku GIFT: ${error.message}`);
+          }
+      );
     }
+  };
+
+  const handleShowQuiz = (id) => {
+    fetch(`http://localhost:8080/quizes/${id}`)
+        .then(res => res.json())
+        .then(data => setShowingQuiz(data))
+        .catch(err => alert("Nie udało się pobrać quizu do podglądu."));
+  };
+
+  const handleBackFromQuiz = () => {
+    setShowingQuiz(null);
   };
 
 
@@ -110,21 +100,22 @@ function App() {
 
   return (
       <div className="App">
-        {/* Header */}
-        <header>
-          <h1>QuizMaster</h1>
-          <p className="subtitle">Twórz i rozwiązuj quizy — bez logowania</p>
-          <button className="create-btn" onClick={() => setCreatingQuiz(true)}>➕ Stwórz nowy quiz</button>
-        </header>
+        {!showingQuiz && !creatingQuiz && (
+            <>
+              <header>
+                <h1>QuizMaster</h1>
+                <p className="subtitle">Twórz i rozwiązuj quizy — bez logowania</p>
+                <button className="create-btn" onClick={() => setCreatingQuiz(true)}>➕ Stwórz nowy quiz</button>
+              </header>
 
-        {/* Import/Export Buttons */}
-        <div className="top-bar">
-          <button onClick={handleExportClick}>📥 Export</button>
-          <button onClick={handleImportClick}>📂 Import</button>
-          <input id="file-import" type="file" accept=".gift" style={{ display: 'none' }} onChange={handleImportChange} />
-        </div>
+              <div className="top-bar">
+                <button onClick={handleExportClick}>📥 Export</button>
+                <button onClick={handleImportGiftClick}>📂 Import</button>
+                <input id="file-import-gift" type="file" accept=".gift" style={{ display: 'none' }} onChange={handleImportGiftChange} />
+              </div>
+            </>
+        )}
 
-        {/* Export Modal */}
         {exportingQuiz && (
             <div className="modal-backdrop">
               <div className="modal export-modal">
@@ -169,10 +160,7 @@ function App() {
             </div>
         )}
 
-
-
-        {/* Main Content */}
-        {!creatingQuiz ? (
+        {!creatingQuiz && !showingQuiz ? (
             <>
               {importedQuiz && (
                   <div className="imported">
@@ -186,15 +174,17 @@ function App() {
                         key={q.id}
                         className="quiz-button"
                         style={{ backgroundColor: q.color }}
-                        onClick={() => alert(`Wybrałeś: ${q.title}`)}
+                        onClick={() => handleShowQuiz(q.id)}
                     >
                       {q.title}
                     </button>
                 ))}
               </section>
             </>
-        ) : (
+        ) : creatingQuiz ? (
             <CreateQuizPage onCancel={() => setCreatingQuiz(false)} />
+        ) : (
+            <ShowQuizPage quiz={showingQuiz} onBack={handleBackFromQuiz} />
         )}
       </div>
   );

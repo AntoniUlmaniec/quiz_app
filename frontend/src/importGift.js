@@ -1,34 +1,37 @@
 // src/importGift.js
 
-export const importGiftFile = (file, callback) => {
-    const reader = new FileReader();
+/**
+ * Obsługuje import pliku GIFT poprzez wysłanie go do backendu.
+ * Zakłada, że backend odpowiada za walidację i zapis do bazy danych.
+ *
+ * @param {File} file - Obiekt pliku do zaimportowania.
+ * @param {function(string): void} onSuccess - Callback wywoływany po pomyślnym imporcie, otrzymuje wiadomość sukcesu.
+ * @param {function(Error): void} onError - Callback wywoływany w przypadku błędu, otrzymuje obiekt Error.
+ */
+export const importGiftFileToBackend = (file, onSuccess, onError) => {
+    if (!file) {
+        onError(new Error('Nie wybrano pliku.'));
+        return;
+    }
 
-    reader.onload = function(event) {
-        const content = event.target.result;
-        const parsedQuiz = parseGIFT(content);
-        callback(parsedQuiz);  // Wywołaj callback z danymi quizu
-    };
+    const formData = new FormData();
+    formData.append("file", file);
 
-    reader.readAsText(file);
-};
-
-const parseGIFT = (content) => {
-    const quiz = { title: '', questions: [] };
-    const lines = content.split('\n');
-    let currentQuestion = null;
-
-    lines.forEach((line) => {
-        if (line.startsWith('::')) {
-            quiz.title = line.split('::')[1].trim();
-        } else if (line.includes('{')) {
-            currentQuestion = { text: line.replace('{', '').trim(), answers: [] };
-        } else if (line.includes('=') || line.includes('~')) {
-            currentQuestion.answers.push({ text: line.trim(), correct: line.startsWith('=') });
-        } else if (line.includes('}')) {
-            quiz.questions.push(currentQuestion);
-            currentQuestion = null;
-        }
-    });
-
-    return quiz;
+    fetch("http://localhost:8080/import", { // Endpoint dla plików GIFT
+        method: "POST",
+        body: formData,
+    })
+        .then(res => {
+            if (!res.ok) {
+                // Jeśli backend zwróci błąd, odczytujemy wiadomość o błędzie z odpowiedzi
+                return res.text().then(text => Promise.reject(new Error(text || res.statusText)));
+            }
+            return res.text(); // Backend powinien zwrócić tekst sukcesu lub potwierdzenie
+        })
+        .then(message => {
+            onSuccess(message); // Przekazujemy wiadomość o sukcesie do callbacka
+        })
+        .catch(err => {
+            onError(err); // Przekazujemy błąd do callbacka
+        });
 };
