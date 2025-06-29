@@ -6,7 +6,9 @@ function ShowQuizPage({ quiz, onBack }) {
     if (!quiz) return <div>Brak danych do wyświetlenia.</div>;
 
     return (
+
         <div className="show-quiz-container">
+            <button className="btn-back" onClick={onBack}>🔙 Powrót</button>
             <h2>{quiz.title}</h2>
             <p><strong>Autor:</strong> {quiz.author}</p>
             <p><strong>Data utworzenia:</strong> {quiz.creationDate}</p>
