@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
 import CreateQuizPage from './CreateQuizPage';
 import { exportQuizViaBackend } from './exportGift';
@@ -16,12 +16,30 @@ function App() {
   const [creatingQuiz, setCreatingQuiz] = useState(false);
   const [exportingQuiz, setExportingQuiz] = useState(false);
   const [importedQuiz, setImportedQuiz] = useState(null);
+  const [quizzes, setQuizzes] = useState([]);
+  // const [quizzes, setQuizzes] = useState([
+  //   { id: 1, title: 'Quiz: HTML & CSS', author: 'John Doe', category: 'Web Dev', selected: false,color: randomColor() },
+  //   { id: 2, title: 'Quiz: JavaScript', author: 'Jane Smith', category: 'Programming', selected: false ,color: randomColor()},
+  //   { id: 3, title: 'Quiz: Podstawy Javy', author: 'Jan Kowalski', category: 'Programming', selected: false ,color: randomColor()},
+  // ]);
 
-  const [quizzes, setQuizzes] = useState([
-    { id: 1, title: 'Quiz: HTML & CSS', author: 'John Doe', category: 'Web Dev', selected: false,color: randomColor() },
-    { id: 2, title: 'Quiz: JavaScript', author: 'Jane Smith', category: 'Programming', selected: false ,color: randomColor()},
-    { id: 3, title: 'Quiz: Podstawy Javy', author: 'Jan Kowalski', category: 'Programming', selected: false ,color: randomColor()},
-  ]);
+  useEffect(() => {
+    fetch('http://localhost:8080/quizes')
+        .then(res => res.json())
+        .then(data => {
+          // Map backend data to frontend structure
+          const mapped = data.map(q => ({
+            ...q,
+            category: 'Brak kategorii', // or map if you have category
+            selected: false,
+            color: randomColor(),
+          }));
+          setQuizzes(mapped);
+        })
+        .catch(err => {
+          console.error('Error fetching quizzes:', err);
+        });
+  }, []);
 
   const [authorFilter, setAuthorFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');

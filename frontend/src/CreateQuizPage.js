@@ -99,29 +99,18 @@ function CreateQuizPage({ onCancel }) {
         <div className="quiz-type-options">
           <label>
             <input
-              type="radio"
-              name="quizType"
-              value="single"
-              checked={quizType === 'single'}
-              onChange={() => setQuizType('single')}
+                type="text"
+                placeholder="kategoria"
+                // value={authorNickname}
+                // onChange={(e) => setAuthorNickname(e.target.value)}
+                // className="author-nickname-input"
             />
-            Test jednokrotnego wyboru
-          </label>
-          <label style={{ marginLeft: 20 }}>
-            <input
-              type="radio"
-              name="quizType"
-              value="multiple"
-              checked={quizType === 'multiple'}
-              onChange={() => setQuizType('multiple')}
-            />
-            Test wielokrotnego wyboru
           </label>
         </div>
 
         <input
           type="text"
-          placeholder="Nickname autora (opcjonalnie)"
+          placeholder="Nickname autora"
           value={authorNickname}
           onChange={(e) => setAuthorNickname(e.target.value)}
           className="author-nickname-input"

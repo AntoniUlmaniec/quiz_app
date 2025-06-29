@@ -48,6 +48,34 @@ public class HelloController {
         return quizRepository.findAll();
     }
 
+    @GetMapping("/quizes/{id}")
+    public ResponseEntity<Quiz> getQuizById(@PathVariable Long id) {
+        return quizRepository.findById(id)
+                .map(quiz -> ResponseEntity.ok(quiz))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/quizes/export/{id}")
+    public ResponseEntity<String> exportQuiz(@PathVariable Long id) {
+        return quizRepository.findById(id)
+                .map(quiz -> {
+                    StringBuilder gift = new StringBuilder();
+                    for (Question question : quiz.getQuestions()) {
+                        gift.append("// ").append(quiz.getTitle()).append("\n");
+                        gift.append(question.getQuestion()).append(" {");
+                        for (Answer answer : question.getAnswers()) {
+                            if (answer.isCorrect()) {
+                                gift.append(" =").append(answer.getAnswerText());
+                            } else {
+                                gift.append(" ~").append(answer.getAnswerText());
+                            }
+                        }
+                        gift.append(" }\n\n");
+                    }
+                    return ResponseEntity.ok(gift.toString());
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
     /**
      curl -X POST http://localhost:8080/add-quiz \
      -H "Content-Type: application/json" \

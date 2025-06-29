@@ -1,25 +1,24 @@
 // src/exportGift.js
 
-import { saveAs } from 'file-saver'; // importujemy bibliotekę do zapisu plików
 
+// src/exportGift.js
 
-// nowa funkcja eksportu przez backend
-export async function exportQuizViaBackend(quizData) {
-    const res = await fetch('/export-quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(quizData),//
+import { saveAs } from 'file-saver';
+
+// Export quiz as .txt file from backend
+export async function exportQuizViaBackend(q) {
+
+    const quizTitle = 'quiz'
+
+    const res = await fetch(`http://localhost:8080/quizes/export/${q.id}`, {
+        method: 'GET',
     });
     if (!res.ok) {
-        console.error('Błąd podczas eksportu przez backend');
+        console.error('Error exporting quiz from backend');
         return;
     }
     const blob = await res.blob();
-    const disposition = res.headers.get('content-disposition');
-    const filename = disposition
-            ?.split('filename=')[1]
-            ?.replace(/"/g, '')
-        || `${quizData.title}.gift`;
-
+    // Always use .txt extension
+    const filename = `${q.title}.gift`;
     saveAs(blob, filename);
 }
