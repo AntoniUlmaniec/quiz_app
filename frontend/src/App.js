@@ -59,8 +59,9 @@ function App() {
         method: "POST",
         body: formData,
       })
-          .then(res => {
+          .then(res => res.text().then(text => {
             if (res.ok) {
+              alert("✅ Plik został wysłany do backendu: " + text);
               alert("✅ Plik został wysłany do backendu");
               // Dodaj kafelek od razu
               const newQuiz = {
@@ -79,7 +80,7 @@ function App() {
           .catch(err => {
             console.error("Błąd przesyłania pliku:", err);
             alert("❌ Nie udało się wysłać pliku do backendu");
-          });
+          }));
     }
   };
 
