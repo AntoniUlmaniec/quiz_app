@@ -225,12 +225,33 @@
   flex-wrap: nowrap;
 }
 
-.author-nickname-input {
+.author-nickname-category-input {
   flex-grow: 1;
   max-width: 300px;
   padding: 6px 10px;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
+}
+
+.correct-checkbox-label {
+  margin-left: 10px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.correct-checkbox {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.question-type-hint {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+  margin-left: 5px;
 }
 

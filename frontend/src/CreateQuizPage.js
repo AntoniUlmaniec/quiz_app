@@ -5,8 +5,8 @@ const emptyAnswer = () => ({ text: '', points: 0 });
 const emptyQuestion = () => ({ text: '', answers: [emptyAnswer()] });
 
 function CreateQuizPage({ onCancel }) {
-  const [quizType, setQuizType] = useState('single'); // 'single' lub 'multiple'
   const [authorNickname, setAuthorNickname] = useState('');
+  const [category, setCategory] = useState('');
   const [questions, setQuestions] = useState([emptyQuestion()]);
   const [errors, setErrors] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);
@@ -41,6 +41,12 @@ function CreateQuizPage({ onCancel }) {
     setQuestions(newQuestions);
   };
 
+  const handleCorrectToggle = (qIndex, aIndex, checked) => {
+    const newQuestions = [...questions];
+    newQuestions[qIndex].answers[aIndex].points = checked ? 1 : 0;
+    setQuestions(newQuestions);
+  };
+
   const addAnswer = (qIndex) => {
     const newQuestions = [...questions];
     if (newQuestions[qIndex].answers.length >= 6) {
@@ -58,8 +64,16 @@ function CreateQuizPage({ onCancel }) {
     setQuestions(newQuestions);
   };
 
+  const isMultipleCorrectAnswers = (question) => {
+    return question.answers.filter(a => a.points > 0).length > 1;
+  };
+
   const validate = () => {
     const errors = [];
+
+    if (!category.trim()) {
+      errors.push('Pole "Kategoria" nie może być puste.');
+    }
 
     if (questions.length === 0) {
       errors.push('Quiz musi mieć co najmniej jedno pytanie.');
@@ -72,6 +86,8 @@ function CreateQuizPage({ onCancel }) {
       if (q.answers.length === 0) {
         errors.push(`Pytanie #${i + 1} musi mieć co najmniej jedną odpowiedź.`);
       }
+
+      let hasCorrectAnswer = false;
       q.answers.forEach((a, j) => {
         if (!a.text.trim()) {
           errors.push(`Odpowiedź #${j + 1} w pytaniu #${i + 1} jest pusta.`);
@@ -79,7 +95,14 @@ function CreateQuizPage({ onCancel }) {
         if (isNaN(a.points)) {
           errors.push(`Punkty odpowiedzi #${j + 1} w pytaniu #${i + 1} muszą być liczbą.`);
         }
+        if (a.points > 0) {
+          hasCorrectAnswer = true;
+        }
       });
+
+      if (!hasCorrectAnswer) {
+        errors.push(`Pytanie #${i + 1} musi mieć przynajmniej jedną poprawną odpowiedź.`);
+      }
     });
 
     setErrors(errors);
@@ -88,6 +111,14 @@ function CreateQuizPage({ onCancel }) {
 
   const handleSave = () => {
     if (!validate()) return;
+
+    const quiz = {
+      authorNickname,
+      category,
+      questions,
+    };
+
+    console.log("Gotowy quiz:", quiz);
     alert('Quiz gotowy do zapisu! (tu pójdzie do backendu)');
   };
 
@@ -96,24 +127,20 @@ function CreateQuizPage({ onCancel }) {
       <h2>Tworzenie nowego quizu</h2>
 
       <div className="quiz-type-select">
-        <div className="quiz-type-options">
-          <label>
-            <input
-                type="text"
-                placeholder="kategoria"
-                // value={authorNickname}
-                // onChange={(e) => setAuthorNickname(e.target.value)}
-                // className="author-nickname-input"
-            />
-          </label>
-        </div>
+        <input
+          type="text"
+          placeholder="Kategoria"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="author-nickname-category-input"
+        />
 
         <input
           type="text"
           placeholder="Nickname autora"
           value={authorNickname}
           onChange={(e) => setAuthorNickname(e.target.value)}
-          className="author-nickname-input"
+          className="author-nickname-category-input"
         />
       </div>
 
@@ -140,6 +167,10 @@ function CreateQuizPage({ onCancel }) {
             className="question-input"
           />
 
+          <p className="question-type-hint">
+            Typ pytania: {isMultipleCorrectAnswers(q) ? 'Wielokrotnego wyboru' : 'Jednokrotnego wyboru'}
+          </p>
+
           <div className="answers-list">
             {q.answers.map((a, aIndex) => (
               <div className="answer-row" key={aIndex}>
@@ -154,9 +185,21 @@ function CreateQuizPage({ onCancel }) {
                   type="number"
                   placeholder="Punkty"
                   value={a.points}
-                  onChange={(e) => handleAnswerChange(qIndex, aIndex, 'points', e.target.value)}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    handleAnswerChange(qIndex, aIndex, 'points', value);
+                  }}
                   className="answer-points-input"
                 />
+                <label className="correct-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={a.points > 0}
+                    onChange={(e) => handleCorrectToggle(qIndex, aIndex, e.target.checked)}
+                    className="correct-checkbox"
+                  />
+                  Poprawna
+                </label>
                 <button
                   onClick={() => removeAnswer(qIndex, aIndex)}
                   disabled={q.answers.length === 1}
@@ -196,7 +239,6 @@ function CreateQuizPage({ onCancel }) {
         </button>
       </div>
 
-      {/* Toast */}
       {toastMessage && (
         <div className="toast-notification">
           {toastMessage}
