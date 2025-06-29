@@ -6,8 +6,10 @@ import './exportGift';
 import { importGiftFile } from './importGift';
 
 function randomColor() {
-  const hue = Math.floor(Math.random() * 360);
-  return `hsl(${hue}, 70%, 80%)`;
+  const r = Math.floor(Math.random() * 256);
+  const g = Math.floor(Math.random() * 256);
+  const b = Math.floor(Math.random() * 256);
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 function App() {
@@ -16,9 +18,9 @@ function App() {
   const [importedQuiz, setImportedQuiz] = useState(null);
 
   const [quizzes, setQuizzes] = useState([
-    { id: 1, title: 'Quiz: HTML & CSS', author: 'John Doe', category: 'Web Dev', selected: false },
-    { id: 2, title: 'Quiz: JavaScript', author: 'Jane Smith', category: 'Programming', selected: false },
-    { id: 3, title: 'Quiz: Podstawy Javy', author: 'Jan Kowalski', category: 'Programming', selected: false },
+    { id: 1, title: 'Quiz: HTML & CSS', author: 'John Doe', category: 'Web Dev', selected: false,color: randomColor() },
+    { id: 2, title: 'Quiz: JavaScript', author: 'Jane Smith', category: 'Programming', selected: false ,color: randomColor()},
+    { id: 3, title: 'Quiz: Podstawy Javy', author: 'Jan Kowalski', category: 'Programming', selected: false ,color: randomColor()},
   ]);
 
   const [authorFilter, setAuthorFilter] = useState('');
@@ -45,8 +47,42 @@ function App() {
 
   const handleImportChange = e => {
     const file = e.target.files[0];
-    if (file) importGiftFile(file, data => setImportedQuiz(data));
+    if (file) {
+
+
+
+      // Wyślij plik do backendu
+      const formData = new FormData();
+      formData.append("file", file);
+
+      fetch("http://localhost:8080/import", {
+        method: "POST",
+        body: formData,
+      })
+          .then(res => {
+            if (res.ok) {
+              alert("✅ Plik został wysłany do backendu");
+              // Dodaj kafelek od razu
+              const newQuiz = {
+                id: Math.floor(Math.random() * 10000),
+                title: file.name.replace(".gift", ""),
+                author: "Z pliku .gift",
+                category: "Import",
+                selected: false,
+                color: randomColor()
+              };
+              setQuizzes(qs => [...qs, newQuiz]);
+            } else {
+              alert("⚠️ Wysłano plik, ale backend zwrócił błąd");
+            }
+          })
+          .catch(err => {
+            console.error("Błąd przesyłania pliku:", err);
+            alert("❌ Nie udało się wysłać pliku do backendu");
+          });
+    }
   };
+
 
   const filtered = quizzes.filter(q =>
       (authorFilter ? q.author.toLowerCase().includes(authorFilter.toLowerCase()) : true) &&
@@ -130,7 +166,7 @@ function App() {
                     <button
                         key={q.id}
                         className="quiz-button"
-                        style={{ backgroundColor: randomColor() }}
+                        style={{ backgroundColor: q.color }}
                         onClick={() => alert(`Wybrałeś: ${q.title}`)}
                     >
                       {q.title}
