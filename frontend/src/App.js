@@ -90,6 +90,22 @@ function App() {
       );
     }
   };
+  const handleDeleteQuiz = async (id) => {
+    if (!window.confirm("Czy na pewno chcesz usunąć ten quiz?")) return;
+    try {
+      const res = await fetch(`http://localhost:8080/delete/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setQuizzes(prev => prev.filter(q => q.id !== id));
+      } else {
+        alert("❌ Nie udało się usunąć quizu.");
+      }
+    } catch (err) {
+      console.error("Błąd usuwania:", err);
+    }
+  };
+
 
   const handleShowQuiz = (id) => {
     console.log("Kliknięty quiz ID:", id);
@@ -184,16 +200,19 @@ function App() {
               )}
               <section className="quiz-grid">
                 {quizzes.map(q => (
-                    <button
-                        key={q.id}
-                        className="quiz-button"
-                        style={{backgroundColor: q.color}}
-                        onClick={() => handleShowQuiz(q.id)}
-                    >
-                      <span style={{fontSize: '20px'}}>{q.icon}</span>
-                      {q.title}
-                    </button>
+                    <div key={q.id} className="quiz-button" style={{ backgroundColor: q.color }}>
+                      <div className="quiz-content" onClick={() => handleShowQuiz(q.id)}>
+                        <span style={{ fontSize: '20px' }}>{q.icon}</span> {q.title}
+                      </div>
+                      <button
+                          className="delete-inside"
+                          onClick={() => handleDeleteQuiz(q.id)}
+                      >
+                        Usuń
+                      </button>
+                    </div>
                 ))}
+
               </section>
             </>
         ) : creatingQuiz ? (
