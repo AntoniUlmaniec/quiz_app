@@ -7,6 +7,13 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -55,24 +62,77 @@ public class HelloController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+//    @GetMapping("/quizes/export/{id}")
+//    public ResponseEntity<String> exportQuiz(@PathVariable Long id) {
+//        return quizRepository.findById(id)
+//                .map(quiz -> {
+//                    StringBuilder gift = new StringBuilder();
+//                    for (Question question : quiz.getQuestions()) {
+//                        gift.append("// ").append(quiz.getTitle()).append("\n");
+//                        gift.append(question.getQuestion()).append(" {");
+//                        for (Answer answer : question.getAnswers()) {
+//                            double points = answer.getPointsPerAnswer();
+//                            if (points > 0) {
+//                                gift.append(String.format(" ~%%%.2f%%", points * 100)).append(answer.getAnswerText());
+//                            } else {
+//                                gift.append(" ~").append(answer.getAnswerText());
+//                            }
+//                        }
+//                        gift.append(" }\n\n");
+//                    }
+//                    return ResponseEntity.ok(gift.toString());
+//                })
+//                .orElse(ResponseEntity.notFound().build());
+//    }
+private String escapeXml(String input) {
+    return input == null ? "" : input
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;");
+}
+
+
     @GetMapping("/quizes/export/{id}")
     public ResponseEntity<String> exportQuiz(@PathVariable Long id) {
         return quizRepository.findById(id)
                 .map(quiz -> {
-                    StringBuilder gift = new StringBuilder();
+                    StringBuilder xml = new StringBuilder();
+                    xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                    xml.append("<quiz>\n");
+
                     for (Question question : quiz.getQuestions()) {
-                        gift.append("// ").append(quiz.getTitle()).append("\n");
-                        gift.append(question.getQuestion()).append(" {");
+                        double totalPoints = question.getAnswers().stream()
+                                .filter(a -> a.getPointsPerAnswer() > 0)
+                                .mapToDouble(Answer::getPointsPerAnswer)
+                                .sum();
+                        if (totalPoints == 0) totalPoints = 1; // zapobiegamy dzieleniu przez zero
+
+                        xml.append("  <question type=\"multichoice\">\n");
+                        xml.append("    <name><text>").append(escapeXml(quiz.getTitle())).append("</text></name>\n");
+                        xml.append("    <questiontext format=\"html\">\n");
+                        xml.append("      <text><![CDATA[").append(escapeXml(question.getQuestion())).append("]]></text>\n");
+                        xml.append("    </questiontext>\n");
+                        xml.append("    <defaultgrade>").append(totalPoints).append("</defaultgrade>\n");
+                        xml.append("    <answernumbering>abc</answernumbering>\n");
+                        xml.append("    <shuffleanswers>true</shuffleanswers>\n");
+
                         for (Answer answer : question.getAnswers()) {
-                            if (answer.isCorrect()) {
-                                gift.append(" =").append(answer.getAnswerText());
-                            } else {
-                                gift.append(" ~").append(answer.getAnswerText());
-                            }
+                            double fraction = (answer.getPointsPerAnswer() / totalPoints) * 100.0;
+                            xml.append("    <answer fraction=\"").append(fraction).append("\">\n");
+                            xml.append("      <text>").append(escapeXml(answer.getAnswerText())).append("</text>\n");
+                            xml.append("      <feedback><text></text></feedback>\n");
+                            xml.append("    </answer>\n");
                         }
-                        gift.append(" }\n\n");
+
+                        xml.append("  </question>\n");
                     }
-                    return ResponseEntity.ok(gift.toString());
+
+                    xml.append("</quiz>\n");
+                    return ResponseEntity.ok()
+                            .header("Content-Disposition", "attachment; filename=\"" + quiz.getTitle().replaceAll("\\s+", "_") + ".xml\"")
+                            .body(xml.toString());
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -88,73 +148,141 @@ public class HelloController {
     }
 
     // Java
+//    @PostMapping("/import")
+//    public ResponseEntity<String> importGiftFile(@RequestParam("file") MultipartFile file) {
+//        try {
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+//            String line;
+//            List<Question> questions = new ArrayList<>();
+//            String title = "Imported Quiz";
+//            String questionText = null;
+//            List<Answer> answers = null;
+//            boolean inQuestion = false;
+//
+//            while ((line = reader.readLine()) != null) {
+//                line = line.trim();
+//                if (line.isEmpty() || line.startsWith("//")) continue;
+//
+//                // Start of a question
+//                if (!inQuestion && line.contains("{")) {
+//                    int idx = line.indexOf("{");
+//                    questionText = line.substring(0, idx).trim();
+//                    answers = new ArrayList<>();
+//                    String answerBlock = line.substring(idx + 1);
+//                    if (answerBlock.contains("}")) {
+//                        answerBlock = answerBlock.substring(0, answerBlock.indexOf("}"));
+//                        inQuestion = false;
+//                    } else {
+//                        inQuestion = true;
+//                    }
+//                    parseGiftAnswers(answerBlock, answers);
+//                } else if (inQuestion) {
+//                    String answerBlock = line;
+//                    if (answerBlock.contains("}")) {
+//                        answerBlock = answerBlock.substring(0, answerBlock.indexOf("}"));
+//                        inQuestion = false;
+//                    }
+//                    parseGiftAnswers(answerBlock, answers);
+//                }
+//
+//                // End of question
+//                if (!inQuestion && questionText != null && answers != null && !answers.isEmpty()) {
+//                    long correctCount = answers.stream().filter(Answer::isCorrect).count();
+//                    if (correctCount >= 1) { // Only MC and MC with multiple correct
+//                        Question q = new Question();
+//                        q.setQuestion(questionText);
+//                        q.setAnswers(answers);
+//                        questions.add(q);
+//                    }
+//                    questionText = null;
+//                    answers = null;
+//                }
+//            }
+//
+//            if (questions.isEmpty()) {
+//                return ResponseEntity.badRequest().body("No valid multiple choice questions found.");
+//            }
+//
+//            Quiz quiz = new Quiz();
+//            quiz.setTitle(title);
+//            quiz.setQuestions(questions);
+//            quiz.setCreationDate(LocalDate.now());
+//            quizRepository.save(quiz);
+//
+//            return ResponseEntity.ok("Quiz imported with " + questions.size() + " questions.");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(500).body("Server error");
+//        }
+//    }
+    private String getTextContent(Element parent, String tagName) {
+        NodeList list = parent.getElementsByTagName(tagName);
+        if (list.getLength() > 0) {
+            Node node = list.item(0);
+            return node.getTextContent().trim();
+        }
+        return "";
+    }
+
     @PostMapping("/import")
-    public ResponseEntity<String> importGiftFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> importXmlFile(@RequestParam("file") MultipartFile file) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-            String line;
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(file.getInputStream());
+
+            NodeList questionNodes = doc.getElementsByTagName("question");
             List<Question> questions = new ArrayList<>();
-            String title = "Imported Quiz";
-            String questionText = null;
-            List<Answer> answers = null;
-            boolean inQuestion = false;
 
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("//")) continue;
+            for (int i = 0; i < questionNodes.getLength(); i++) {
+                Element questionElem = (Element) questionNodes.item(i);
 
-                // Start of a question
-                if (!inQuestion && line.contains("{")) {
-                    int idx = line.indexOf("{");
-                    questionText = line.substring(0, idx).trim();
-                    answers = new ArrayList<>();
-                    String answerBlock = line.substring(idx + 1);
-                    if (answerBlock.contains("}")) {
-                        answerBlock = answerBlock.substring(0, answerBlock.indexOf("}"));
-                        inQuestion = false;
-                    } else {
-                        inQuestion = true;
-                    }
-                    parseGiftAnswers(answerBlock, answers);
-                } else if (inQuestion) {
-                    String answerBlock = line;
-                    if (answerBlock.contains("}")) {
-                        answerBlock = answerBlock.substring(0, answerBlock.indexOf("}"));
-                        inQuestion = false;
-                    }
-                    parseGiftAnswers(answerBlock, answers);
+                if (!"multichoice".equals(questionElem.getAttribute("type"))) continue;
+
+                String questionText = getTextContent(questionElem, "questiontext");
+                double defaultGrade = Double.parseDouble(getTextContent(questionElem, "defaultgrade"));
+
+                NodeList answerNodes = questionElem.getElementsByTagName("answer");
+                List<Answer> answers = new ArrayList<>();
+
+                for (int j = 0; j < answerNodes.getLength(); j++) {
+                    Element answerElem = (Element) answerNodes.item(j);
+                    String answerText = getTextContent(answerElem, "text");
+                    double fraction = Double.parseDouble(answerElem.getAttribute("fraction"));
+                    double points = Math.round((fraction / 100.0) * defaultGrade * 100.0) / 100.0; // np. 0.8 * 5 = 4.0
+
+                    Answer a = new Answer();
+                    a.setAnswerText(answerText);
+                    a.setCorrect(points > 0);
+                    a.setPointsPerAnswer((int) points);
+                    answers.add(a);
                 }
 
-                // End of question
-                if (!inQuestion && questionText != null && answers != null && !answers.isEmpty()) {
-                    long correctCount = answers.stream().filter(Answer::isCorrect).count();
-                    if (correctCount >= 1) { // Only MC and MC with multiple correct
-                        Question q = new Question();
-                        q.setQuestion(questionText);
-                        q.setAnswers(answers);
-                        questions.add(q);
-                    }
-                    questionText = null;
-                    answers = null;
+                if (!answers.isEmpty()) {
+                    Question q = new Question();
+                    q.setQuestion(questionText);
+                    q.setAnswers(answers);
+                    questions.add(q);
                 }
             }
 
             if (questions.isEmpty()) {
-                return ResponseEntity.badRequest().body("No valid multiple choice questions found.");
+                return ResponseEntity.badRequest().body("Brak poprawnych pytań w pliku XML.");
             }
 
             Quiz quiz = new Quiz();
-            quiz.setTitle(title);
+            quiz.setTitle("Imported Quiz");
             quiz.setQuestions(questions);
             quiz.setCreationDate(LocalDate.now());
             quizRepository.save(quiz);
 
-            return ResponseEntity.ok("Quiz imported with " + questions.size() + " questions.");
+            return ResponseEntity.ok("Quiz zaimportowany: " + questions.size() + " pytań.");
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Server error");
+            return ResponseEntity.status(500).body("Błąd serwera: " + e.getMessage());
         }
     }
+
 
     // Helper method to parse GIFT answers
     private void parseGiftAnswers(String answerBlock, List<Answer> answers) {

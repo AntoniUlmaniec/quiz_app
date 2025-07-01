@@ -155,7 +155,7 @@ function App() {
                   {filtered.map(q => (
                       <div key={q.id} className="export-item">
                         <span>
-                           <span style={{fontSize: '20px'}}>{getIconByCategory(q.category)}</span>
+
                            {q.title} — {q.author} [{q.category}]
                         </span>
                         <input
