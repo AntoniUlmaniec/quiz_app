@@ -182,7 +182,13 @@ function App() {
               </section>
             </>
         ) : creatingQuiz ? (
-            <CreateQuizPage onCancel={() => setCreatingQuiz(false)} />
+            <CreateQuizPage
+                onCancel={() => setCreatingQuiz(false)}
+                onQuizSaved={() => {
+                  fetchQuizzes();
+                  setCreatingQuiz(false);
+                }}
+            />
         ) : (
             <ShowQuizPage quiz={showingQuiz} onBack={handleBackFromQuiz} />
         )}

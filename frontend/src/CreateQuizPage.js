@@ -4,7 +4,9 @@ import './CreateQuizPage.css';
 const emptyAnswer = () => ({ text: '', points: 0 });
 const emptyQuestion = () => ({ text: '', answers: [emptyAnswer()] });
 
-function CreateQuizPage({ onCancel }) {
+function CreateQuizPage({ onCancel, onQuizSaved }) {
+
+  const [title, setTitle] = useState('');
   const [authorNickname, setAuthorNickname] = useState('');
   const [category, setCategory] = useState('');
   const [questions, setQuestions] = useState([emptyQuestion()]);
@@ -113,138 +115,176 @@ function CreateQuizPage({ onCancel }) {
     if (!validate()) return;
 
     const quiz = {
-      authorNickname,
-      category,
-      questions,
+      title: title.trim(),
+      author: authorNickname.trim(),
+      category: category.trim(),
+      questions: questions.map(q => ({
+        question: q.text,
+        answers: q.answers.map(a => ({
+          answerText: a.text,
+          pointsPerAnswer: a.points,
+          correct: a.points > 0
+        })),
+        maxPointsPerQuestion: q.answers
+            .filter(a => a.points > 0)
+            .reduce((acc, a) => acc + a.points, 0)
+      }))
     };
 
-    console.log("Gotowy quiz:", quiz);
-    alert('Quiz gotowy do zapisu! (tu pójdzie do backendu)');
+    fetch('http://localhost:8080/add-quiz', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(quiz)
+    })
+        .then(res => {
+          if (res.ok) {
+            alert('✅ Quiz został zapisany!');
+            onQuizSaved(); // to odświeży quizy
+            onCancel();
+          }else {
+            return res.text().then(msg => {
+              throw new Error(msg || 'Błąd zapisu');
+            });
+          }
+        })
+        .catch(err => {
+          console.error('❌ Błąd zapisu quizu:', err);
+          alert(`❌ Nie udało się zapisać quizu: ${err.message}`);
+        });
+
   };
 
   return (
-    <div className="create-quiz-container">
-      <h2>Tworzenie nowego quizu</h2>
+      <div className="create-quiz-container">
+        <h2>Tworzenie nowego quizu</h2>
 
-      <div className="quiz-type-select">
-        <input
-          type="text"
-          placeholder="Kategoria"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="author-nickname-category-input"
-        />
 
-        <input
-          type="text"
-          placeholder="Nickname autora"
-          value={authorNickname}
-          onChange={(e) => setAuthorNickname(e.target.value)}
-          className="author-nickname-category-input"
-        />
-      </div>
-
-      <hr />
-
-      {questions.map((q, qIndex) => (
-        <div className="question-card" key={qIndex}>
-          <div className="question-header">
-            <h3>Pytanie #{qIndex + 1}</h3>
-            <button
-              onClick={() => removeQuestion(qIndex)}
-              disabled={questions.length === 1}
-              className="btn-remove-question"
-            >
-              Usuń pytanie
-            </button>
-          </div>
-
+        <div className="quiz-type-select">
           <input
-            type="text"
-            placeholder="Treść pytania"
-            value={q.text}
-            onChange={(e) => handleQuestionTextChange(qIndex, e.target.value)}
-            className="question-input"
+              type="text"
+              placeholder="Tytuł quizu"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="author-nickname-category-input"
+          />
+          <input
+              type="text"
+              placeholder="Kategoria"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="author-nickname-category-input"
           />
 
-          <p className="question-type-hint">
-            Typ pytania: {isMultipleCorrectAnswers(q) ? 'Wielokrotnego wyboru' : 'Jednokrotnego wyboru'}
-          </p>
+          <input
+              type="text"
+              placeholder="Nickname autora"
+              value={authorNickname}
+              onChange={(e) => setAuthorNickname(e.target.value)}
+              className="author-nickname-category-input"
+          />
+        </div>
 
-          <div className="answers-list">
-            {q.answers.map((a, aIndex) => (
-              <div className="answer-row" key={aIndex}>
-                <input
-                  type="text"
-                  placeholder="Treść odpowiedzi"
-                  value={a.text}
-                  onChange={(e) => handleAnswerChange(qIndex, aIndex, 'text', e.target.value)}
-                  className="answer-text-input"
-                />
-                <input
-                  type="number"
-                  placeholder="Punkty"
-                  value={a.points}
-                  onChange={(e) => {
-                    const value = Number(e.target.value);
-                    handleAnswerChange(qIndex, aIndex, 'points', value);
-                  }}
-                  className="answer-points-input"
-                />
-                <label className="correct-checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={a.points > 0}
-                    onChange={(e) => handleCorrectToggle(qIndex, aIndex, e.target.checked)}
-                    className="correct-checkbox"
-                  />
-                  Poprawna
-                </label>
+        <hr/>
+
+        {questions.map((q, qIndex) => (
+            <div className="question-card" key={qIndex}>
+              <div className="question-header">
+                <h3>Pytanie #{qIndex + 1}</h3>
                 <button
-                  onClick={() => removeAnswer(qIndex, aIndex)}
-                  disabled={q.answers.length === 1}
-                  className="btn-remove-answer"
+                    onClick={() => removeQuestion(qIndex)}
+                    disabled={questions.length === 1}
+                    className="btn-remove-question"
                 >
-                  Usuń
+                  Usuń pytanie
                 </button>
               </div>
-            ))}
-            <button onClick={() => addAnswer(qIndex)} className="btn-add-answer">
-              Dodaj odpowiedź
-            </button>
-          </div>
-        </div>
-      ))}
 
-      <button onClick={addQuestion} className="btn-add-question">
-        Dodaj pytanie
-      </button>
+              <input
+                  type="text"
+                  placeholder="Treść pytania"
+                  value={q.text}
+                  onChange={(e) => handleQuestionTextChange(qIndex, e.target.value)}
+                  className="question-input"
+              />
 
-      {errors.length > 0 && (
-        <div className="errors-list">
-          <ul>
-            {errors.map((err, i) => (
-              <li key={i}>{err}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+              <p className="question-type-hint">
+                Typ pytania: {isMultipleCorrectAnswers(q) ? 'Wielokrotnego wyboru' : 'Jednokrotnego wyboru'}
+              </p>
 
-      <div className="actions-row">
-        <button onClick={handleSave} className="btn-save-quiz">
-          Zapisz quiz
+              <div className="answers-list">
+                {q.answers.map((a, aIndex) => (
+                    <div className="answer-row" key={aIndex}>
+                      <input
+                          type="text"
+                          placeholder="Treść odpowiedzi"
+                          value={a.text}
+                          onChange={(e) => handleAnswerChange(qIndex, aIndex, 'text', e.target.value)}
+                          className="answer-text-input"
+                      />
+                      <input
+                          type="number"
+                          placeholder="Punkty"
+                          value={a.points}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            handleAnswerChange(qIndex, aIndex, 'points', value);
+                          }}
+                          className="answer-points-input"
+                      />
+                      <label className="correct-checkbox-label">
+                        <input
+                            type="checkbox"
+                            checked={a.points > 0}
+                            onChange={(e) => handleCorrectToggle(qIndex, aIndex, e.target.checked)}
+                            className="correct-checkbox"
+                        />
+                        Poprawna
+                      </label>
+                      <button
+                          onClick={() => removeAnswer(qIndex, aIndex)}
+                          disabled={q.answers.length === 1}
+                          className="btn-remove-answer"
+                      >
+                        Usuń
+                      </button>
+                    </div>
+                ))}
+                <button onClick={() => addAnswer(qIndex)} className="btn-add-answer">
+                  Dodaj odpowiedź
+                </button>
+              </div>
+            </div>
+        ))}
+
+        <button onClick={addQuestion} className="btn-add-question">
+          Dodaj pytanie
         </button>
-        <button onClick={onCancel} className="btn-cancel">
-          Anuluj
-        </button>
+
+        {errors.length > 0 && (
+            <div className="errors-list">
+              <ul>
+                {errors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+        )}
+
+        <div className="actions-row">
+          <button onClick={handleSave} className="btn-save-quiz">
+            Zapisz quiz
+          </button>
+          <button onClick={onCancel} className="btn-cancel">
+            Anuluj
+          </button>
+        </div>
+
+        {toastMessage && (
+            <div className="toast-notification">
+              {toastMessage}
+            </div>
+        )}
       </div>
-
-      {toastMessage && (
-        <div className="toast-notification">
-          {toastMessage}
-        </div>
-      )}
-    </div>
   );
 }
 
