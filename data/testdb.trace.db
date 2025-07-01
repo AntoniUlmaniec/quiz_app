@@ -1,0 +1,4 @@
+2025-07-01 20:27:16.235084+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Błąd składniowy w wyrażeniu SQL "SELECT * FROM QUIZ QUESTION [*]ANSWER"
+Syntax error in SQL statement "SELECT * FROM QUIZ QUESTION [*]ANSWER"; SQL statement:
+SELECT * FROM QUIZ QUESTION ANSWER [42000-232]
