@@ -33,14 +33,18 @@ function ShowQuizPage({ quiz, onBack }) {
         quiz.questions.forEach((q, qIndex) => {
             const selected = selectedAnswers[qIndex] || [];
 
+            let scoreForQuestion = 0;
+
             selected.forEach(answerIndex => {
                 const answer = q.answers[answerIndex];
                 if (answer?.correct) {
-                    totalScore += answer.pointsPerAnswer;
+                    scoreForQuestion += answer.pointsPerAnswer;
                 } else {
-                    totalScore += answer.pointsPerAnswer; // Dodaj punkty nawet za błędne odpowiedzi
+                    scoreForQuestion += answer.pointsPerAnswer; // Dodaj punkty nawet za błędne odpowiedzi
                 }
             });
+
+            totalScore += Math.max(scoreForQuestion, 0);
         });
 
         setScore(totalScore);
