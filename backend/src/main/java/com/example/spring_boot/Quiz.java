@@ -15,18 +15,20 @@ public class Quiz {
     private String author;
     private String title;
     private LocalDate creationDate;
+    private String category;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "quiz_id")
     private List<Question> questions = new ArrayList<>();
 
 
-    public Quiz(Long id, String author, String title, LocalDate creationDate, List<Question> questions) {
+    public Quiz(Long id, String author, String title, LocalDate creationDate, String category,List<Question> questions) {
         this.id = id;
         this.author = author;
         this.title = title;
         this.creationDate = creationDate;
         this.questions = questions;
+        this.category = category;
     }
 
 
@@ -82,5 +84,13 @@ public class Quiz {
 
     public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
