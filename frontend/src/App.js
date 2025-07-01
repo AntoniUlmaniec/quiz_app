@@ -6,12 +6,12 @@ import { exportQuizViaBackend } from './exportGift';
 import { importGiftFileToBackend } from './importGift';
 import ShowQuizPage from './ShowQuizPage';
 
-function randomColor() {
-  const r = Math.floor(Math.random() * 160) + 90; // 150–255
-  const g = Math.floor(Math.random() * 160) + 90;
-  const b = Math.floor(Math.random() * 160) + 90;
-  return `rgb(${r}, ${g}, ${b})`;
-}
+// function randomColor() {
+//   const r = Math.floor(Math.random() * 160) + 90; // 150–255
+//   const g = Math.floor(Math.random() * 160) + 90;
+//   const b = Math.floor(Math.random() * 160) + 90;
+//   return `rgb(${r}, ${g}, ${b})`;
+// }
 
 function App() {
   const [showingQuiz, setShowingQuiz] = useState(null);
@@ -19,6 +19,7 @@ function App() {
   const [exportingQuiz, setExportingQuiz] = useState(false);
   const [importedQuiz, setImportedQuiz] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
+  const bookIcons = ['📘', '📗', '📙', '📕', '📒', '📓'];
 
   useEffect(() => {
     fetchQuizzes();
@@ -28,11 +29,12 @@ function App() {
     fetch('http://localhost:8080/quizes')
         .then(res => res.json())
         .then(data => {
-          const mapped = data.map(q => ({
+          const mapped = data.map((q,index)=> ({
             ...q,
             category: q.category || 'Brak kategorii',
             selected: false,
-            color: randomColor(),
+            // color: randomColor(),
+            icon: bookIcons[index % bookIcons.length]
           }));
           setQuizzes(mapped);
         })
@@ -41,6 +43,14 @@ function App() {
           alert('Błąd podczas pobierania quizów. Sprawdź, czy backend działa.');
         });
   };
+
+
+
+  const getRandomBookIcon = () => {
+    return bookIcons[Math.floor(Math.random() * bookIcons.length)];
+  };
+
+
 
   const [authorFilter, setAuthorFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -82,6 +92,7 @@ function App() {
   };
 
   const handleShowQuiz = (id) => {
+    console.log("Kliknięty quiz ID:", id);
     fetch(`http://localhost:8080/quizes/${id}`)
         .then(res => res.json())
         .then(data => setShowingQuiz(data))
@@ -143,7 +154,10 @@ function App() {
                 <div className="export-list">
                   {filtered.map(q => (
                       <div key={q.id} className="export-item">
-                        <span>{q.title} — {q.author} [{q.category}]</span>
+                        <span>
+
+                           {q.title} — {q.author} [{q.category}]
+                        </span>
                         <input
                             type="checkbox"
                             checked={q.selected}
@@ -173,9 +187,10 @@ function App() {
                     <button
                         key={q.id}
                         className="quiz-button"
-                        style={{ backgroundColor: q.color }}
+                        style={{backgroundColor: q.color}}
                         onClick={() => handleShowQuiz(q.id)}
                     >
+                      <span style={{fontSize: '20px'}}>{q.icon}</span>
                       {q.title}
                     </button>
                 ))}
