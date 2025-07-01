@@ -37,6 +37,8 @@ function ShowQuizPage({ quiz, onBack }) {
                 const answer = q.answers[answerIndex];
                 if (answer?.correct) {
                     totalScore += answer.pointsPerAnswer;
+                } else {
+                    totalScore += answer.pointsPerAnswer; // Dodaj punkty nawet za błędne odpowiedzi
                 }
             });
         });
@@ -66,20 +68,24 @@ function ShowQuizPage({ quiz, onBack }) {
                             {q.answers.map((a, aIndex) => {
                                 const isChecked = selected.includes(aIndex);
                                 const isCorrect = a.correct;
+                                const pointsText = `${a.pointsPerAnswer >= 0 ? '+' : ''}${a.pointsPerAnswer} pkt`;
 
                                 let feedback = "";
                                 let answerClass = "";
 
                                 if (submitted) {
-                                    if (isChecked && isCorrect) {
-                                        feedback = "✅";
-                                        answerClass = "correct-selected";
-                                    } else if (isChecked && !isCorrect) {
-                                        feedback = "❌";
-                                        answerClass = "incorrect-selected";
-                                    } else if (!isChecked && isCorrect) {
-                                        feedback = "✅";
+                                    if (isChecked) {
+                                        feedback = isCorrect
+                                            ? `✅ (${pointsText})`
+                                            : `❌ (${pointsText})`;
+                                        answerClass = isCorrect
+                                            ? "correct-selected"
+                                            : "incorrect-selected";
+                                    } else if (isCorrect) {
+                                        feedback = `✅ (${pointsText})`;
                                         answerClass = "correct-unselected";
+                                    } else {
+                                        feedback = `(${pointsText})`;
                                     }
                                 }
 
@@ -94,7 +100,7 @@ function ShowQuizPage({ quiz, onBack }) {
                                                 onChange={() => handleSelect(qIndex, aIndex, isMulti)}
                                                 disabled={submitted}
                                             />
-                                            {a.answerText} {submitted ? feedback : ""}
+                                            {a.answerText} {submitted && feedback}
                                         </label>
                                     </li>
                                 );
