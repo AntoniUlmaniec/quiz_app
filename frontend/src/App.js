@@ -200,13 +200,21 @@ function App() {
               )}
               <section className="quiz-grid">
                 {quizzes.map(q => (
-                    <div key={q.id} className="quiz-button" style={{ backgroundColor: q.color }}>
-                      <div className="quiz-content" onClick={() => handleShowQuiz(q.id)}>
+                    <div
+                        key={q.id}
+                        className="quiz-button"
+                        style={{ backgroundColor: q.color }}
+                        onClick={() => handleShowQuiz(q.id)}
+                    >
+                      <div className="quiz-content">
                         <span style={{ fontSize: '20px' }}>{q.icon}</span> {q.title}
                       </div>
                       <button
                           className="delete-inside"
-                          onClick={() => handleDeleteQuiz(q.id)}
+                          onClick={e => {
+                            e.stopPropagation(); // Prevents triggering handleShowQuiz when deleting
+                            handleDeleteQuiz(q.id);
+                          }}
                       >
                         Usuń
                       </button>
