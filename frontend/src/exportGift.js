@@ -19,6 +19,6 @@ export async function exportQuizViaBackend(q) {
     }
     const blob = await res.blob();
     // Always use .txt extension
-    const filename = `${q.title}.gift`;
+    const filename = `${q.title}.xml`;
     saveAs(blob, filename);
 }

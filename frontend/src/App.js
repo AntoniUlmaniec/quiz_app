@@ -122,7 +122,7 @@ function App() {
               <div className="top-bar">
                 <button onClick={handleExportClick}>📥 Export</button>
                 <button onClick={handleImportGiftClick}>📂 Import</button>
-                <input id="file-import-gift" type="file" accept=".gift" style={{ display: 'none' }} onChange={handleImportGiftChange} />
+                <input id="file-import-gift" type="file" accept=".xml" style={{ display: 'none' }} onChange={handleImportGiftChange} />
               </div>
             </>
         )}

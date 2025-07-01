@@ -12,7 +12,7 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    int pointsPerAnswer;
+    double pointsPerAnswer;
     boolean isCorrect;
     String answerText;
 
@@ -20,7 +20,7 @@ public class Answer {
         // no-arg constructor required by JPA
     }
 
-    public Answer(int pointsPerAnswer, boolean isCorrect, String answerText) {
+    public Answer(double pointsPerAnswer, boolean isCorrect, String answerText) {
         this.pointsPerAnswer = pointsPerAnswer;
         this.isCorrect = isCorrect;
         this.answerText = answerText;
@@ -32,11 +32,11 @@ public class Answer {
 
 
 
-    public int getPointsPerAnswer() {
+    public double getPointsPerAnswer() {
         return pointsPerAnswer;
     }
 
-    public void setPointsPerAnswer(int pointsPerAnswer) {
+    public void setPointsPerAnswer(double pointsPerAnswer) {
         this.pointsPerAnswer = pointsPerAnswer;
     }
 
