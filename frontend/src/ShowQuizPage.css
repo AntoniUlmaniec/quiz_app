@@ -32,6 +32,7 @@
     background-color: #1976d2;
 }
 
+
 .correct-selected {
     background-color: #d4edda;
     border-left: 4px solid green;
@@ -48,4 +49,12 @@
     background-color: #fff3cd;
     border-left: 4px solid orange;
     padding-left: 8px;
+}
+
+.result-summary {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #eef;
+    border: 1px solid #ccc;
+    border-radius: 8px;
 }
