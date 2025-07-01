@@ -7,9 +7,9 @@ import { importGiftFileToBackend } from './importGift';
 import ShowQuizPage from './ShowQuizPage';
 
 function randomColor() {
-  const r = Math.floor(Math.random() * 256);
-  const g = Math.floor(Math.random() * 256);
-  const b = Math.floor(Math.random() * 256);
+  const r = Math.floor(Math.random() * 160) + 90; // 150–255
+  const g = Math.floor(Math.random() * 160) + 90;
+  const b = Math.floor(Math.random() * 160) + 90;
   return `rgb(${r}, ${g}, ${b})`;
 }
 
