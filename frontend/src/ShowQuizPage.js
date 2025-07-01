@@ -1,33 +1,114 @@
-// src/ShowQuizPage.js
-import React from 'react';
+import React, { useState } from 'react';
 import './ShowQuizPage.css';
 
 function ShowQuizPage({ quiz, onBack }) {
+    const [selectedAnswers, setSelectedAnswers] = useState({});
+    const [submitted, setSubmitted] = useState(false);
+    const [score, setScore] = useState(0);
+
     if (!quiz) return <div>Brak danych do wyświetlenia.</div>;
 
-    return (
+    const isMultipleChoice = (question) => {
+        return question.answers.filter(a => a.correct).length > 1;
+    };
 
+    const handleSelect = (questionIndex, answerIndex, isMulti) => {
+        setSelectedAnswers((prev) => {
+            const current = prev[questionIndex] || [];
+
+            if (isMulti) {
+                const updated = current.includes(answerIndex)
+                    ? current.filter(i => i !== answerIndex)
+                    : [...current, answerIndex];
+                return { ...prev, [questionIndex]: updated };
+            } else {
+                return { ...prev, [questionIndex]: [answerIndex] };
+            }
+        });
+    };
+
+    const handleSubmit = () => {
+        let totalScore = 0;
+
+        quiz.questions.forEach((q, qIndex) => {
+            const selected = selectedAnswers[qIndex] || [];
+            selected.forEach(answerIndex => {
+                const answer = q.answers[answerIndex];
+                if (answer?.correct) {
+                    totalScore += answer.pointsPerAnswer;
+                }
+            });
+        });
+
+        setScore(totalScore);
+        setSubmitted(true);
+    };
+
+    return (
         <div className="show-quiz-container">
             <button className="btn-back" onClick={onBack}>🔙 Powrót</button>
             <h2>{quiz.title}</h2>
             <p><strong>Autor:</strong> {quiz.author}</p>
             <p><strong>Data utworzenia:</strong> {quiz.creationDate}</p>
 
-            {quiz.questions.map((q, qIndex) => (
-                <div key={qIndex} className="show-question">
-                    <h3>Pytanie #{qIndex + 1}</h3>
-                    <p>{q.question}</p>
-                    <ul>
-                        {q.answers.map((a, aIndex) => (
-                            <li key={aIndex}>
-                                {a.answerText} ({a.pointsPerAnswer} pkt) {a.correct ? "✅" : ""}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            ))}
+            {quiz.questions.map((q, qIndex) => {
+                const isMulti = isMultipleChoice(q);
+                const selected = selectedAnswers[qIndex] || [];
 
-            <button className="btn-back" onClick={onBack}>🔙 Powrót</button>
+                return (
+                    <div key={qIndex} className="show-question">
+                        <h3>Pytanie #{qIndex + 1}</h3>
+                        <p>{q.question}</p>
+                        <ul>
+                            {q.answers.map((a, aIndex) => {
+                                const isChecked = selected.includes(aIndex);
+                                const isCorrect = a.correct;
+
+                                let feedback = "";
+                                let answerClass = "";
+
+                                if (submitted) {
+                                    if (isChecked && isCorrect) {
+                                        feedback = "✅";
+                                        answerClass = "correct-selected";
+                                    } else if (isChecked && !isCorrect) {
+                                        feedback = "❌";
+                                        answerClass = "incorrect-selected";
+                                    } else if (!isChecked && isCorrect) {
+                                        feedback = "✅";
+                                        answerClass = "correct-unselected";
+                                    }
+                                }
+
+                                return (
+                                    <li key={aIndex} className={submitted ? answerClass : ""}>
+                                        <label>
+                                            <input
+                                                type={isMulti ? "checkbox" : "radio"}
+                                                name={`question-${qIndex}`}
+                                                value={aIndex}
+                                                checked={isChecked}
+                                                onChange={() => handleSelect(qIndex, aIndex, isMulti)}
+                                                disabled={submitted}
+                                            />
+                                            {a.answerText} {submitted ? feedback : ""}
+                                        </label>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                );
+            })}
+
+            {!submitted ? (
+                <button onClick={handleSubmit}>✅ Zakończ quiz</button>
+            ) : (
+                <div>
+                    <h3>Twój wynik: {score} pkt</h3>
+                    <button className="btn-back" onClick={onBack}>🔙 Powrót</button>
+                </div>
+            )}
         </div>
     );
 }
