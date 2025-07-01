@@ -30,7 +30,7 @@ function App() {
         .then(data => {
           const mapped = data.map(q => ({
             ...q,
-            category: 'Brak kategorii',
+            category: q.category || 'Brak kategorii',
             selected: false,
             color: randomColor(),
           }));
