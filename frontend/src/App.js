@@ -5,6 +5,7 @@ import { exportQuizViaBackend } from './exportGift';
 // Zmieniono importGift na użycie eksportowanej funkcji
 import { importGiftFileToBackend } from './importGift';
 import ShowQuizPage from './ShowQuizPage';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 // function randomColor() {
 //   const r = Math.floor(Math.random() * 160) + 90; // 150–255
@@ -19,6 +20,11 @@ function App() {
   const [exportingQuiz, setExportingQuiz] = useState(false);
   const [importedQuiz, setImportedQuiz] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteQuizId, setDeleteQuizId] = useState(null);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const bookIcons = ['📘', '📗', '📙', '📕', '📒', '📓'];
 
   useEffect(() => {
@@ -90,19 +96,36 @@ function App() {
       );
     }
   };
-  const handleDeleteQuiz = async (id) => {
-    if (!window.confirm("Czy na pewno chcesz usunąć ten quiz?")) return;
+  const handleDeleteQuiz = (id) => {
+    setDeleteQuizId(id);
+    setShowDeleteModal(true);
+    setDeletePassword('');
+    setRecaptchaToken('');
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletePassword || !recaptchaToken) {
+      alert('Podaj hasło i wypełnij reCAPTCHA.');
+      return;
+    }
+    setDeleteLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/delete/${id}`, {
-        method: 'DELETE',
+      const res = await fetch(`http://localhost:8080/delete/${deleteQuizId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: deletePassword, recaptchaToken })
       });
       if (res.ok) {
-        setQuizzes(prev => prev.filter(q => q.id !== id));
+        setQuizzes(prev => prev.filter(q => q.id !== deleteQuizId));
+        setShowDeleteModal(false);
       } else {
-        alert("❌ Nie udało się usunąć quizu.");
+        const msg = await res.text();
+        alert('❌ Nie udało się usunąć quizu. ' + msg);
       }
     } catch (err) {
-      console.error("Błąd usuwania:", err);
+      alert('Błąd sieci przy usuwaniu quizu.');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -234,8 +257,36 @@ function App() {
         ) : (
             <ShowQuizPage quiz={showingQuiz} onBack={handleBackFromQuiz} />
         )}
+
+        {showDeleteModal && (
+            <div className="modal-overlay">
+              <div className="modal">
+                <h3>Potwierdź usunięcie quizu</h3>
+                <input
+                    type="password"
+                    placeholder="Podaj hasło"
+                    value={deletePassword}
+                    onChange={e => setDeletePassword(e.target.value)}
+                    disabled={deleteLoading}
+                />
+                <div style={{ margin: '16px 0' }}>
+                  <ReCAPTCHA
+                      sitekey="6LckD6EfAAAAAKqk5lcYli_Get0k-ZzNQxADIA4q"
+                      onChange={token => setRecaptchaToken(token)}
+                  />
+                </div>
+                <div className="modal-buttons">
+                  <button onClick={handleConfirmDelete} disabled={deleteLoading}>
+                    {deleteLoading ? 'Usuwanie...' : 'Usuń'}
+                  </button>
+                  <button onClick={() => setShowDeleteModal(false)} disabled={deleteLoading}>Anuluj</button>
+                </div>
+              </div>
+            </div>
+        )}
       </div>
   );
 }
 
 export default App;
+

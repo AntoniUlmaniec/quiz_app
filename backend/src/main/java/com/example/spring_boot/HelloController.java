@@ -22,16 +22,19 @@ import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestTemplate;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
 public class HelloController {
 
     private final QuizRepository quizRepository;
+    private final String recaptchaSecret = "6LckD6EfAAAAAEHzq9XhuBlj_tutx-PlA-KNDa3Q"; // Twój klucz prywatny
+    private final String deletePassword = "admin123"; // Możesz zmienić na dowolne
 
     public HelloController(QuizRepository quizRepository) {
-        // Konstruktor, który wstrzykuje zależność QuizRepository
-        // Dzięki temu możemy korzystać z metod repozytorium do operacji na bazie danych
         this.quizRepository = quizRepository;
     }
 
@@ -299,13 +302,43 @@ public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
 
     // usuwanie quizu
     // curl -X DELETE http://localhost:8080/delete/1
-    @DeleteMapping("/delete/{quiz_id}")
-    public ResponseEntity<Void> deleteQuiz(@PathVariable("quiz_id") Long quizId) {
+    // @DeleteMapping("/delete/{quiz_id}")
+    // public ResponseEntity<Void> deleteQuiz(@PathVariable("quiz_id") Long quizId) {
+    //     if (quizRepository.existsById(quizId)) {
+    //         quizRepository.deleteById(quizId);
+    //         return ResponseEntity.noContent().build();
+    //     } else {
+    //         return ResponseEntity.notFound().build();
+    //     }
+    // }
+
+    // Nowy endpoint POST do usuwania quizu z weryfikacją hasła i recaptcha
+    @PostMapping("/delete/{quiz_id}")
+    public ResponseEntity<String> deleteQuizWithRecaptcha(@PathVariable("quiz_id") Long quizId, @RequestBody Map<String, String> body) {
+        String password = body.getOrDefault("password", "");
+        String recaptchaToken = body.getOrDefault("recaptchaToken", "");
+        if (!deletePassword.equals(password)) {
+            return ResponseEntity.status(403).body("Błędne hasło.");
+        }
+        if (!verifyRecaptcha(recaptchaToken)) {
+            return ResponseEntity.status(403).body("Błąd reCAPTCHA.");
+        }
         if (quizRepository.existsById(quizId)) {
             quizRepository.deleteById(quizId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Quiz usunięty.");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body("Quiz nie istnieje.");
+        }
+    }
+
+    private boolean verifyRecaptcha(String token) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://www.google.com/recaptcha/api/siteverify?secret=" + recaptchaSecret + "&response=" + token;
+            Map response = restTemplate.postForObject(url, null, Map.class);
+            return response != null && Boolean.TRUE.equals(response.get("success"));
+        } catch (Exception e) {
+            return false;
         }
     }
 
