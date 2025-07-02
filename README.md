@@ -13,3 +13,7 @@ technologia: Java Spring
 >Aby wejść na stronę, po uruchomieniu serwera wpisz w przeglądarce adres URL: 'http://localhost:8080'
 >SwaggerUI dostępny jest na stronie: 'http://localhost:8080/swagger-ui/index.html'
 >Przykładowe zapytanie API: 'http://localhost:8080/test/'
+
+3. Uruchamianie działającej aplikacji
+> Aby uruchomić backend należy w IntelliJ IDEAN wykonać Run -> Run 'BACKEND'
+> Aby uruchomić frontend należy wejść do katalogu `/frontend` i uruchomić polecenie `npm start`
