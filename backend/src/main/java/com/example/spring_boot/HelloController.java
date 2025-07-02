@@ -25,6 +25,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
+import java.security.MessageDigest;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -32,7 +33,10 @@ public class HelloController {
 
     private final QuizRepository quizRepository;
     private final String recaptchaSecret = "6LckD6EfAAAAAEHzq9XhuBlj_tutx-PlA-KNDa3Q"; // Twój klucz prywatny
-    private final String deletePassword = "admin123"; // Możesz zmienić na dowolne
+    // admin123
+    // aby otrzymać hash
+    // echo -n "admin123" | openssl dgst -sha256
+    private final String deletePasswordHash = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // SHA-256 hash for 'admin123' (hex)
 
     public HelloController(QuizRepository quizRepository) {
         this.quizRepository = quizRepository;
@@ -315,9 +319,9 @@ public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
     // Nowy endpoint POST do usuwania quizu z weryfikacją hasła i recaptcha
     @PostMapping("/delete/{quiz_id}")
     public ResponseEntity<String> deleteQuizWithRecaptcha(@PathVariable("quiz_id") Long quizId, @RequestBody Map<String, String> body) {
-        String password = body.getOrDefault("password", "");
+        String passwordHash = body.getOrDefault("passwordHash", "");
         String recaptchaToken = body.getOrDefault("recaptchaToken", "");
-        if (!deletePassword.equals(password)) {
+        if (!deletePasswordHash.equalsIgnoreCase(passwordHash)) {
             return ResponseEntity.status(403).body("Błędne hasło.");
         }
         if (!verifyRecaptcha(recaptchaToken)) {

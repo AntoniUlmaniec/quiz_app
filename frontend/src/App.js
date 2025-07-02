@@ -6,6 +6,7 @@ import { exportQuizViaBackend } from './exportGift';
 import { importGiftFileToBackend } from './importGift';
 import ShowQuizPage from './ShowQuizPage';
 import ReCAPTCHA from 'react-google-recaptcha';
+import sha256 from 'js-sha256';
 
 // function randomColor() {
 //   const r = Math.floor(Math.random() * 160) + 90; // 150–255
@@ -110,10 +111,11 @@ function App() {
     }
     setDeleteLoading(true);
     try {
+      const passwordHash = sha256(deletePassword);
       const res = await fetch(`http://localhost:8080/delete/${deleteQuizId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: deletePassword, recaptchaToken })
+        body: JSON.stringify({ passwordHash, recaptchaToken })
       });
       if (res.ok) {
         setQuizzes(prev => prev.filter(q => q.id !== deleteQuizId));
