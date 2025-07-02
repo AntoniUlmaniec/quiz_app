@@ -264,18 +264,21 @@ function App() {
             <div className="modal-overlay">
               <div className="modal">
                 <h3>Potwierdź usunięcie quizu</h3>
-                <input
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+                  <input
                     type="password"
                     placeholder="Podaj hasło"
                     value={deletePassword}
                     onChange={e => setDeletePassword(e.target.value)}
                     disabled={deleteLoading}
-                />
-                <div style={{ margin: '16px 0' }}>
-                  <ReCAPTCHA
+                    style={{ width: '80%', minWidth: 220, marginLeft: 'auto', marginRight: 'auto', marginBottom: 16 }}
+                  />
+                  <div style={{ width: '80%', minWidth: 220, marginLeft: 'auto', marginRight: 'auto' }}>
+                    <ReCAPTCHA
                       sitekey="6LckD6EfAAAAAKqk5lcYli_Get0k-ZzNQxADIA4q"
                       onChange={token => setRecaptchaToken(token)}
-                  />
+                    />
+                  </div>
                 </div>
                 <div className="modal-buttons">
                   <button onClick={handleConfirmDelete} disabled={deleteLoading}>

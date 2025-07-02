@@ -185,6 +185,21 @@ header { text-align: center; margin-bottom: 24px; }
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 16px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.recaptcha-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.recaptcha-row .recaptcha-box {
+  margin-left: 40px;
 }
 
 .modal-buttons {
