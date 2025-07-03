@@ -25,8 +25,8 @@ public class Question {
         this.answers = answers;
     }
 
-    public int getMaxPointsPerQuestion() {
-        int points = 0;
+    public double getMaxPointsPerQuestion() {
+        double points = 0;
         for (Answer answer : answers) {
             if (answer.isCorrect) {
                 points += answer.pointsPerAnswer;

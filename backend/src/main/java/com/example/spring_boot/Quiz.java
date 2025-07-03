@@ -38,8 +38,8 @@ public class Quiz {
         this.creationDate = LocalDate.now();
     }
 
-    public int getMaxPointsPerQuiz() {
-        int points = 0;
+    public double getMaxPointsPerQuiz() {
+        double points = 0;
         for (Question question : questions) {
             points += question.getMaxPointsPerQuestion();
         }
