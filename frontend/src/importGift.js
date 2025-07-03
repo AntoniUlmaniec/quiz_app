@@ -8,7 +8,7 @@
  * @param {function(string): void} onSuccess - Callback wywoływany po pomyślnym imporcie, otrzymuje wiadomość sukcesu.
  * @param {function(Error): void} onError - Callback wywoływany w przypadku błędu, otrzymuje obiekt Error.
  */
-export const importGiftFileToBackend = (file, onSuccess, onError) => {
+export const importFileToBackend = (file, onSuccess, onError) => {
     if (!file) {
         onError(new Error('Nie wybrano pliku.'));
         return;

@@ -3,17 +3,10 @@ import './App.css';
 import CreateQuizPage from './CreateQuizPage';
 import { exportQuizViaBackend } from './exportGift';
 // Zmieniono importGift na użycie eksportowanej funkcji
-import { importGiftFileToBackend } from './importGift';
+import { importFileToBackend } from './importGift';
 import ShowQuizPage from './ShowQuizPage';
 import ReCAPTCHA from 'react-google-recaptcha';
 import sha256 from 'js-sha256';
-
-// function randomColor() {
-//   const r = Math.floor(Math.random() * 160) + 90; // 150–255
-//   const g = Math.floor(Math.random() * 160) + 90;
-//   const b = Math.floor(Math.random() * 160) + 90;
-//   return `rgb(${r}, ${g}, ${b})`;
-// }
 
 function App() {
   const [showingQuiz, setShowingQuiz] = useState(null);
@@ -26,6 +19,8 @@ function App() {
   const [deletePassword, setDeletePassword] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [authorFilter, setAuthorFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const bookIcons = ['📘', '📗', '📙', '📕', '📒', '📓'];
 
   useEffect(() => {
@@ -40,7 +35,6 @@ function App() {
             ...q,
             category: q.category || 'Brak kategorii',
             selected: false,
-            // color: randomColor(),
             icon: bookIcons[index % bookIcons.length]
           }));
           setQuizzes(mapped);
@@ -50,17 +44,6 @@ function App() {
           alert('Błąd podczas pobierania quizów. Sprawdź, czy backend działa.');
         });
   };
-
-
-
-  const getRandomBookIcon = () => {
-    return bookIcons[Math.floor(Math.random() * bookIcons.length)];
-  };
-
-
-
-  const [authorFilter, setAuthorFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
 
   const handleCheckboxChange = (id) => {
     setQuizzes(qs => qs.map(q => q.id === id ? { ...q, selected: !q.selected } : q));
@@ -77,14 +60,14 @@ function App() {
     setExportingQuiz(false);
   };
 
-  const handleImportGiftClick = () => {
+  const handleImportClick = () => {
     document.getElementById('file-import-gift').click();
   };
 
-  const handleImportGiftChange = e => {
+  const handleImportChange = e => {
     const file = e.target.files[0];
     if (file) {
-      importGiftFileToBackend(
+      importFileToBackend(
           file,
           (message) => { // onSuccess callback
             alert(`✅ Plik GIFT został pomyślnie przetworzony przez backend: ${message}`);
@@ -162,8 +145,8 @@ function App() {
 
               <div className="top-bar">
                 <button onClick={handleExportClick}>📥 Export</button>
-                <button onClick={handleImportGiftClick}>📂 Import</button>
-                <input id="file-import-gift" type="file" accept=".xml" style={{ display: 'none' }} onChange={handleImportGiftChange} />
+                <button onClick={handleImportClick}>📂 Import</button>
+                <input id="file-import-gift" type="file" accept=".xml" style={{ display: 'none' }} onChange={handleImportChange} />
               </div>
             </>
         )}
