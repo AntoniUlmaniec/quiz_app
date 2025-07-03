@@ -1,9 +1,5 @@
-// src/exportGift.js
-
-
-// src/exportGift.js
-
-import { saveAs } from 'file-saver';
+// src/Export.js
+import {saveAs} from 'file-saver';
 
 // Export quiz as .txt file from backend
 export async function exportQuizViaBackend(q) {

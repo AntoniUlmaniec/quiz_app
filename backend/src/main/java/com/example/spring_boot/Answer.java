@@ -30,8 +30,6 @@ public class Answer {
         return id;
     }
 
-
-
     public double getPointsPerAnswer() {
         return pointsPerAnswer;
     }

@@ -22,7 +22,7 @@ public class Quiz {
     private List<Question> questions = new ArrayList<>();
 
 
-    public Quiz(Long id, String author, String title, LocalDate creationDate, String category,List<Question> questions) {
+    public Quiz(Long id, String author, String title, LocalDate creationDate, String category, List<Question> questions) {
         this.id = id;
         this.author = author;
         this.title = title;

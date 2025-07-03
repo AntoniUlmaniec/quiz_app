@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import './ShowQuizPage.css';
 
-function ShowQuizPage({ quiz, onBack }) {
+function ShowQuizPage({quiz, onBack}) {
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const [score, setScore] = useState(0);
@@ -20,9 +20,9 @@ function ShowQuizPage({ quiz, onBack }) {
                 const updated = current.includes(answerIndex)
                     ? current.filter(i => i !== answerIndex)
                     : [...current, answerIndex];
-                return { ...prev, [questionIndex]: updated };
+                return {...prev, [questionIndex]: updated};
             } else {
-                return { ...prev, [questionIndex]: [answerIndex] };
+                return {...prev, [questionIndex]: [answerIndex]};
             }
         });
     };

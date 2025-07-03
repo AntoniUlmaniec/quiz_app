@@ -1,4 +1,4 @@
-// src/importGift.js
+// src/Import.js
 
 /**
  * Obsługuje import pliku GIFT poprzez wysłanie go do backendu.
