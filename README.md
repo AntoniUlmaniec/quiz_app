@@ -1,5 +1,10 @@
 # QuizApp – aplikacja quizowa 
 
+> **Zrzuty ekranu znajdują się w folderze `screeny`** \
+> Baza danych znajduje się w pliku `data`
+
+
+
 1. Podział na backend i frontend
 > Fronted znajduje się w katalogu /frontend \
 technologia: React
