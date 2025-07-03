@@ -22,8 +22,10 @@ import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.Map;
 import java.security.MessageDigest;
 
@@ -69,67 +71,46 @@ public class HelloController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-//    @GetMapping("/quizes/export/{id}")
-//    public ResponseEntity<String> exportQuiz(@PathVariable Long id) {
-//        return quizRepository.findById(id)
-//                .map(quiz -> {
-//                    StringBuilder gift = new StringBuilder();
-//                    for (Question question : quiz.getQuestions()) {
-//                        gift.append("// ").append(quiz.getTitle()).append("\n");
-//                        gift.append(question.getQuestion()).append(" {");
-//                        for (Answer answer : question.getAnswers()) {
-//                            double points = answer.getPointsPerAnswer();
-//                            if (points > 0) {
-//                                gift.append(String.format(" ~%%%.2f%%", points * 100)).append(answer.getAnswerText());
-//                            } else {
-//                                gift.append(" ~").append(answer.getAnswerText());
-//                            }
-//                        }
-//                        gift.append(" }\n\n");
-//                    }
-//                    return ResponseEntity.ok(gift.toString());
-//                })
-//                .orElse(ResponseEntity.notFound().build());
-//    }
-@GetMapping(value = "/quizes/export/{id}", produces = "application/xml")
-public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
-    return quizRepository.findById(id)
-            .map(quiz -> {
-                StringBuilder xml = new StringBuilder();
-                xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                xml.append("<quiz>\n");
 
-                xml.append("  <metadata>\n");
-                xml.append("    <title>").append(escapeXml(quiz.getTitle())).append("</title>\n");
-                xml.append("    <author>").append(escapeXml(quiz.getAuthor())).append("</author>\n");
-                xml.append("    <creationDate>").append(quiz.getCreationDate()).append("</creationDate>\n");
-                xml.append("  </metadata>\n");
+    @GetMapping(value = "/quizes/export/{id}", produces = "application/xml")
+    public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
+        return quizRepository.findById(id)
+                .map(quiz -> {
+                    StringBuilder xml = new StringBuilder();
+                    xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                    xml.append("<quiz>\n");
 
-                for (Question question : quiz.getQuestions()) {
-                    xml.append("  <question type=\"multichoice\">\n");
-                    xml.append("    <questiontext>").append(escapeXml(question.getQuestion())).append("</questiontext>\n");
+                    xml.append("  <metadata>\n");
+                    xml.append("    <title>").append(escapeXml(quiz.getTitle())).append("</title>\n");
+                    xml.append("    <author>").append(escapeXml(quiz.getAuthor())).append("</author>\n");
+                    xml.append("    <creationDate>").append(quiz.getCreationDate()).append("</creationDate>\n");
+                    xml.append("  </metadata>\n");
 
-                    double totalPoints = question.getAnswers().stream()
-                            .filter(a -> a.getPointsPerAnswer() > 0)
-                            .mapToDouble(Answer::getPointsPerAnswer).sum();
+                    for (Question question : quiz.getQuestions()) {
+                        xml.append("  <question type=\"multichoice\">\n");
+                        xml.append("    <questiontext>").append(escapeXml(question.getQuestion())).append("</questiontext>\n");
 
-                    xml.append("    <defaultgrade>").append(totalPoints).append("</defaultgrade>\n");
+                        double totalPoints = question.getAnswers().stream()
+                                .filter(a -> a.getPointsPerAnswer() > 0)
+                                .mapToDouble(Answer::getPointsPerAnswer).sum();
 
-                    for (Answer answer : question.getAnswers()) {
-                        double fraction = Math.round((answer.getPointsPerAnswer() / totalPoints) * 10000.0) / 100.0;
-                        xml.append("    <answer fraction=\"").append(fraction).append("\">\n");
-                        xml.append("      <text>").append(escapeXml(answer.getAnswerText())).append("</text>\n");
-                        xml.append("    </answer>\n");
+                        xml.append("    <defaultgrade>").append(totalPoints).append("</defaultgrade>\n");
+
+                        for (Answer answer : question.getAnswers()) {
+                            double fraction = Math.round((answer.getPointsPerAnswer() / totalPoints) * 10000.0) / 100.0;
+                            xml.append("    <answer fraction=\"").append(fraction).append("\">\n");
+                            xml.append("      <text>").append(escapeXml(answer.getAnswerText())).append("</text>\n");
+                            xml.append("    </answer>\n");
+                        }
+                        xml.append("  </question>\n");
                     }
-                    xml.append("  </question>\n");
-                }
 
-                xml.append("</quiz>\n");
+                    xml.append("</quiz>\n");
 
-                return ResponseEntity.ok(xml.toString());
-            })
-            .orElse(ResponseEntity.notFound().build());
-}
+                    return ResponseEntity.ok(xml.toString());
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     private String escapeXml(String s) {
         return s == null ? "" : s.replace("&", "&amp;")
@@ -138,10 +119,11 @@ public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;");
     }
+
     /**
-     curl -X POST http://localhost:8080/add-quiz \
-     -H "Content-Type: application/json" \
-     -d '{"title":"Test Quiz","author":"User", "category": "prog", "questions":[{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1}]}'
+     * curl -X POST http://localhost:8080/add-quiz \
+     * -H "Content-Type: application/json" \
+     * -d '{"title":"Test Quiz","author":"User", "category": "prog", "questions":[{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1},{"question":"PYTANIE","answers":[{"pointsPerAnswer":1,"answerText":"Odpowiedz","correct":true}],"maxPointsPerQuestion":1}]}'
      **/
     @PostMapping("/add-quiz")
     public Quiz addQuiz(@RequestBody Quiz quiz) {
@@ -149,74 +131,6 @@ public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
         return quizRepository.save(quiz);
     }
 
-    // Java
-//    @PostMapping("/import")
-//    public ResponseEntity<String> importGiftFile(@RequestParam("file") MultipartFile file) {
-//        try {
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-//            String line;
-//            List<Question> questions = new ArrayList<>();
-//            String title = "Imported Quiz";
-//            String questionText = null;
-//            List<Answer> answers = null;
-//            boolean inQuestion = false;
-//
-//            while ((line = reader.readLine()) != null) {
-//                line = line.trim();
-//                if (line.isEmpty() || line.startsWith("//")) continue;
-//
-//                // Start of a question
-//                if (!inQuestion && line.contains("{")) {
-//                    int idx = line.indexOf("{");
-//                    questionText = line.substring(0, idx).trim();
-//                    answers = new ArrayList<>();
-//                    String answerBlock = line.substring(idx + 1);
-//                    if (answerBlock.contains("}")) {
-//                        answerBlock = answerBlock.substring(0, answerBlock.indexOf("}"));
-//                        inQuestion = false;
-//                    } else {
-//                        inQuestion = true;
-//                    }
-//                    parseGiftAnswers(answerBlock, answers);
-//                } else if (inQuestion) {
-//                    String answerBlock = line;
-//                    if (answerBlock.contains("}")) {
-//                        answerBlock = answerBlock.substring(0, answerBlock.indexOf("}"));
-//                        inQuestion = false;
-//                    }
-//                    parseGiftAnswers(answerBlock, answers);
-//                }
-//
-//                // End of question
-//                if (!inQuestion && questionText != null && answers != null && !answers.isEmpty()) {
-//                    long correctCount = answers.stream().filter(Answer::isCorrect).count();
-//                    if (correctCount >= 1) { // Only MC and MC with multiple correct
-//                        Question q = new Question();
-//                        q.setQuestion(questionText);
-//                        q.setAnswers(answers);
-//                        questions.add(q);
-//                    }
-//                    questionText = null;
-//                    answers = null;
-//                }
-//            }
-//
-//            if (questions.isEmpty()) {
-//                return ResponseEntity.badRequest().body("No valid multiple choice questions found.");
-//            }
-//
-//            Quiz quiz = new Quiz();
-//            quiz.setTitle(title);
-//            quiz.setQuestions(questions);
-//            quiz.setCreationDate(LocalDate.now());
-//            quizRepository.save(quiz);
-//
-//            return ResponseEntity.ok("Quiz imported with " + questions.size() + " questions.");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body("Server error");
-//        }
-//    }
     private String getTextContent(Element parent, String tag) {
         NodeList list = parent.getElementsByTagName(tag);
         if (list.getLength() > 0) {
@@ -259,7 +173,7 @@ public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
                     Answer a = new Answer();
                     a.setAnswerText(aText);
                     a.setCorrect(points > 0);
-                    a.setPointsPerAnswer( points);
+                    a.setPointsPerAnswer(points);
                     answers.add(a);
                 }
 
@@ -285,36 +199,6 @@ public ResponseEntity<String> exportQuizToXml(@PathVariable Long id) {
         }
     }
 
-
-    // Helper method to parse GIFT answers
-//    private void parseGiftAnswers(String answerBlock, List<Answer> answers) {
-//        String[] parts = answerBlock.split("(?=[=~])");
-//        for (String part : parts) {
-//            part = part.trim();
-//            if (part.isEmpty()) continue;
-//            boolean correct = part.startsWith("=");
-//            String text = part.substring(1).trim();
-//            if (!text.isEmpty()) {
-//                Answer a = new Answer();
-//                a.setAnswerText(text);
-//                a.setCorrect(correct);
-//                answers.add(a);
-//            }
-//        }
-//    }
-
-
-    // usuwanie quizu
-    // curl -X DELETE http://localhost:8080/delete/1
-    // @DeleteMapping("/delete/{quiz_id}")
-    // public ResponseEntity<Void> deleteQuiz(@PathVariable("quiz_id") Long quizId) {
-    //     if (quizRepository.existsById(quizId)) {
-    //         quizRepository.deleteById(quizId);
-    //         return ResponseEntity.noContent().build();
-    //     } else {
-    //         return ResponseEntity.notFound().build();
-    //     }
-    // }
 
     // Nowy endpoint POST do usuwania quizu z weryfikacją hasła i recaptcha
     @PostMapping("/delete/{quiz_id}")
