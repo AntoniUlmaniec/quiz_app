@@ -36,6 +36,7 @@ public class Quiz {
         this.title = "";
         this.author = "";
         this.creationDate = LocalDate.now();
+        this.category = "";
     }
 
     public double getMaxPointsPerQuiz() {

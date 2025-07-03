@@ -84,6 +84,8 @@ public class HelloController {
                     xml.append("    <title>").append(escapeXml(quiz.getTitle())).append("</title>\n");
                     xml.append("    <author>").append(escapeXml(quiz.getAuthor())).append("</author>\n");
                     xml.append("    <creationDate>").append(quiz.getCreationDate()).append("</creationDate>\n");
+                    xml.append("    <category>").append(quiz.getCategory()).append("</category>\n");
+
                     xml.append("  </metadata>\n");
 
                     for (Question question : quiz.getQuestions()) {
@@ -150,6 +152,7 @@ public class HelloController {
             Element metadata = (Element) doc.getElementsByTagName("metadata").item(0);
             String title = getTextContent(metadata, "title");
             String author = getTextContent(metadata, "author");
+            String category = getTextContent(metadata, "category");
 
             NodeList questionNodes = doc.getElementsByTagName("question");
             List<Question> questions = new ArrayList<>();
@@ -189,6 +192,7 @@ public class HelloController {
             quiz.setTitle(title);
             quiz.setAuthor(author);
             quiz.setQuestions(questions);
+            quiz.setCategory(category);
             quiz.setCreationDate(LocalDate.now());
             quizRepository.save(quiz);
 
