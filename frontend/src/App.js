@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import CreateQuizPage from './CreateQuizPage';
 import {exportQuizViaBackend} from './Export';
-import {importGiftFileToBackend} from './Import';
+import {importFileToBackend} from './Import';
 import ShowQuizPage from './ShowQuizPage';
 import ReCAPTCHA from 'react-google-recaptcha';
 import sha256 from 'js-sha256';
@@ -75,7 +75,7 @@ function App() {
     const handleImportGiftChange = e => {
         const file = e.target.files[0];
         if (file) {
-            importGiftFileToBackend(
+            importFileToBackend(
                 file,
                 (message) => { // onSuccess callback
                     alert(`✅ Plik GIFT został pomyślnie przetworzony przez backend: ${message}`);
